@@ -1,4 +1,4 @@
-hipico
+Hipico
 ======
 
 Sistema de Ventas Hipicas
