@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" width="387"
+				autoDrawBackground="true" fontFamily="Verdana" fontSize="20"
+				creationComplete="itemrenderer1_creationCompleteHandler(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import Common.Misc;
+			
+			import events.Evento;
+			
+			import mx.events.FlexEvent;
+			override public function set data(value:Object):void {
+				super.data = value;
+				if (value) {
+					bancaid.text = Misc.fillZeros(value.BancaID,2);
+					banca.text = Global.banca.bancas.bancaByID(value.BancaID).Nombre;
+					bloqueado.source = value.Bloqueado?"images/lock32.png":"images/unlock32.png";
+				}
+			}
+			
+			protected function block_clickHandler(event:MouseEvent):void {
+				data.Bloqueado = !data.Bloqueado;
+				bloqueado.source = data.Bloqueado?"images/lock32.png":"images/unlock32.png";
+				dispatchEvent(new Evento("blockChange",data,true));
+			}
+			
+			protected function itemrenderer1_creationCompleteHandler(event:FlexEvent):void {
+				this.maxWidth = parent.width-3;
+			}
+			
+		]]>
+	</fx:Script>
+	<s:HGroup width="100%" verticalAlign="middle">
+		<s:Label id="bancaid" width="30" paddingLeft="3" text="00"/>
+		<s:Rect width="1" height="100%"><s:fill><s:SolidColor color="0" alpha=".3"/></s:fill></s:Rect>
+		<s:Label id="banca" width="100%" text="Banca" maxDisplayedLines="1"/>
+		<s:Rect width="1" height="100%"><s:fill><s:SolidColor color="0" alpha=".3"/></s:fill></s:Rect>
+		<s:Image id="bloqueado" width="32" height="32" buttonMode="true"
+				 click="block_clickHandler(event)" source="images/lock32.png"/>
+	</s:HGroup>
+	<s:Rect width="100%" height="1" bottom="0"><s:fill><s:SolidColor color="0" alpha=".3"/></s:fill></s:Rect>
+</s:ItemRenderer>

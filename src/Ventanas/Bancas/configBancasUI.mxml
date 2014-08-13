@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+					  xmlns:s="library://ns.adobe.com/flex/spark"
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  xmlns:Bancas="Ventanas.Bancas.*"
+					  width="800" height="450" backgroundColor="#54795c" fontFamily="Verdana">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:List id="listBancas" left="10" right="10" top="40" bottom="10"
+			itemRenderer="Ventanas.Bancas.IListEditBanca" skinClass="skins.configBancasListSkin">
+	</s:List>
+	<s:HGroup y="9" right="11" color="#FFFFFF" fontFamily="Verdana" gap="3"
+			  horizontalAlign="right" textAlign="center">
+		<s:Label width="60" x="0" y="13" text="&#xd;Multiplo"/>
+		<s:Label width="60" x="60" y="13" text="Tablas&#xd;Cantidad"/>
+		<s:Label width="60" x="120" y="13" text="&#xd;Paga"/>
+		<s:Line width="0" height="30">
+			<s:stroke>
+				<s:SolidColorStroke color="0xffffff" alpha=".6"/>
+			</s:stroke>
+		</s:Line>
+		<s:Label width="60" text="Remate&#xd;%"/>
+		<s:Label width="60" text="Macuare&#xd;Tope"/>
+	</s:HGroup>
+	<s:Button id="btnAtras" x="10" y="6" width="69" height="30" label="Atras"/>
+</s:SkinnableContainer>

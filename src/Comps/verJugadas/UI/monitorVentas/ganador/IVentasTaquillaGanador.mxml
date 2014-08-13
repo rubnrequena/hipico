@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="false" fontFamily="Verdana" fontSize="16">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayList;
+			private var total:Number;
+			override public function set data(value:Object):void {
+				super.data = value;
+				if (value) {
+					taquilla.text = value.Taquilla;
+					dataList.dataProvider = new ArrayList(value.data);
+					dataList.height = (dataList.dataProvider.length*33)+2;
+					total=0;
+					for (var i:int = 0; i < value.data.length; i++) {
+						total += value.data[i].Monto;
+					}
+					monto.text = total.toString();
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:SolidColor color="#3A768F"/>
+		</s:fill>
+	</s:Rect>
+	<s:Label id="taquilla" y="5" left="5" right="63" color="#FFFFFF" text="TAQUILLA_00"/>
+	<s:Label id="monto" y="5" right="5" color="#FFFFFF"/>
+	<s:List id="dataList" y="24" width="100%" height="108" itemRenderer="Comps.verJugadas.UI.monitorEjemplares.IGanadorAgrupado">
+	</s:List>
+</s:ItemRenderer>

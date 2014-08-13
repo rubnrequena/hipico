@@ -1,0 +1,77 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vistas:Modal xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%"
+					  fontFamily="Verdana" backgroundAlpha=".7" backgroundColor="#000000" currentState="advertencia"
+					  creationComplete="skinnablecontainer1_creationCompleteHandler(event)" xmlns:vistas="vistas.*">
+	<fx:Script>
+		<![CDATA[
+			import mx.core.FlexGlobals;
+			import mx.core.IVisualElementContainer;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+
+			private var t:Timer;
+			
+			protected function skinnablecontainer1_creationCompleteHandler(event:FlexEvent):void {				
+				t = new Timer(1000,5);
+				t.addEventListener(TimerEvent.TIMER,tick);
+				t.addEventListener(TimerEvent.TIMER_COMPLETE,tack);
+				t.start();
+			}
+			protected function tick(event:TimerEvent):void {
+				contador.text = String(5-t.currentCount);	
+			}
+			
+			protected function tack(event:TimerEvent):void {
+				closeModal();
+			}
+			
+			protected function state1_enterStateHandler(event:FlexEvent):void {
+				var mesDias:Array = [31,28,31,30,31,30,31,31,30,31,30,31];
+				var d:Date = new Date;
+				var l:Array  = ["cero","un","dos","tres","cuatro","cinco"];
+				var dias:int = mesDias[d.month]-(d.date-1);
+				noticia.text = 'Se le informa que a partir del presente dia, le restan '+l[dias]+' ('+dias+') día(s) para el vencimiento de los servicios hipicos.'
+			}
+			
+			public static const ADVERTENCIA:String = "advertencia";
+			public static const PAGO:String = "pago";
+			public static function popUp(tipo:String="advertencia",close:Function=null):AvisoPago {
+				var ap:AvisoPago = new AvisoPago;
+				ap.currentState = tipo;
+				ap.addCloseEvent(close,1);
+				FlexGlobals.topLevelApplication.addElement(ap);
+				return ap;
+			}
+		]]>
+	</fx:Script>
+	<fx:Metadata>
+	</fx:Metadata>
+	<vistas:states>
+		<s:State name="pago"/>
+		<s:State name="advertencia" enterState="state1_enterStateHandler(event)"/>
+	</vistas:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:SkinnableContainer width="500" height="300" backgroundAlpha="1" backgroundColor="#ffffff"
+						  horizontalCenter="0" verticalCenter="0">
+		<s:Rect width="100%" height="100%"><s:stroke><s:SolidColorStroke alpha="1" weight="1" color="#CCCCCC"/></s:stroke></s:Rect>
+		<s:Label y="10" left="10" right="10" fontSize="35" fontStyle="normal" fontWeight="bold"
+				 text="Recordatorio de Pago" textAlign="center"
+				 color="#832B2B" text.pago="Aviso de Pago"/>
+		<s:Label y="66" fontSize="16" text="Se le notifica que tiene una deuda pendiente."
+				 y.advertencia="67" left.advertencia="11" right.advertencia="9"
+				 fontSize.advertencia="20"
+				 text.advertencia="Se le informa que a partir del presente dia, le restan cinco (5) días para el vencimiento de los servicios hipicos."
+				 left.pago="10" right.pago="10" fontSize.pago="20" id="noticia"
+				 text.pago="Se le notifica que tiene una deuda pendiente, se le agradece cancelar a la brevedad posible"/>
+		<s:Label left="11" bottom="14" fontSize="16"
+				 text="Contacto:&#xd;T.S.U. Rubén Requena&#xd;0414-9970167"/>
+		<s:Image x="362" y="162" source="images/reminders.png"
+				 source.pago="images/calendar.png"/>
+		<s:Label id="contador" y="-36" right="0" color="#FFFFFF" fontSize="40" fontWeight="bold"
+				 text="5"/>
+	</s:SkinnableContainer>
+</vistas:Modal>

@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vistas:ModalMXMLSkin xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:vistas="vistas.*">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:SkinnableContainer backgroundColor="0xffffff" width="400" height="320">
+		<s:Rect width="100%" height="30">
+			<s:fill><s:SolidColor color="0xDDDDDD"/></s:fill>
+		</s:Rect>
+		<s:Label x="5" y="5" text="NUEVA TAQUILLA" height="20" verticalAlign="middle"/>
+		<s:Form y="30" width="400">
+			<s:FormItem width="250" label="Taquilla ID:" height="25">
+				<s:Label width="250" text="000000" id="taquillaID"/>
+			</s:FormItem>
+			<s:FormItem width="250" label="Nombre:" height="25">
+				<s:TextInput width="250" id="nombre"/>
+			</s:FormItem>
+			<s:FormItem width="250" label="Banca:" height="25">
+				<s:DropDownList width="250" id="banca"/>
+			</s:FormItem>
+			<s:FormItem width="250" label="Tipo:" height="25">
+				<s:DropDownList width="250" id="tipo"/>
+			</s:FormItem>
+			<s:FormItem width="250" height="25" label="Activa:">
+				<s:CheckBox id="activa" selected="true"/>
+			</s:FormItem>
+			<s:FormItem width="250" label="Contraseña:" height="25">
+				<s:TextInput width="250" id="pass"/>
+			</s:FormItem>
+		</s:Form>
+		<s:HGroup width="400" bottom="0" paddingBottom="5" paddingLeft="5" paddingRight="5" >
+			<s:Button label="Confirmar" name="confirmar" height="30" width="60%"/>
+			<s:Button label="Cancelar" name="cancelar" height="30" width="40%"/>
+		</s:HGroup>
+	</s:SkinnableContainer>
+</vistas:ModalMXMLSkin>

@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx" close="parent.removeChild(this)"
+			   width="425" height="332" title="Macuare" creationComplete="titlewindow1_creationCompleteHandler(event)" xmlns:UI="UI.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import Common.Misc;
+			
+			import libVOs.Tablas;
+			
+			import mx.collections.ArrayCollection;
+			import mx.controls.Alert;
+			import mx.events.CalendarLayoutChangeEvent;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+
+			private var carreras:ArrayCollection;
+			protected function btnOK_clickHandler(event:MouseEvent):void
+			{
+				if (Global.db.Leer_Multi(libVOs.Tablas.Carreras,[{Fecha:Misc.formatFecha(date_fecha.selectedDate),Hipodromo:dd_hipodromos.selectedItem.Hipodromo}],"AND").length>0) {
+					var mId:int = Global.db.sInsertar(libVOs.Tablas.macuare,[{fecha:Misc.formatFecha(date_fecha.selectedDate),hipodromo:dd_hipodromos.selectedItem.Hipodromo}]);
+					var macuares:Array = new Array;
+					if (chk_macuare.selected)
+						macuares.push({macuareId:mId,descripcion:"Macuare",paga:macuarePaga.text,inicio:macuareInicia.text,abierta:true});
+					if (chk_macuarito.selected)
+						macuares.push({macuareId:mId,descripcion:"Macuarito",paga:macuaritoPaga.text,inicio:macuaritoInicia.text,abierta:true});
+					Global.db.sInsertar(libVOs.Tablas.macuare_datos,macuares);
+					parent.removeChild(this);
+				} else {
+					Global.noticia.mostrarNoticiaRapida("No hay carreras asignadas");
+				}
+			}
+			
+			protected function titlewindow1_creationCompleteHandler(event:FlexEvent):void {
+				seleccionarCarrera();
+				date_fecha.addEventListener(CalendarLayoutChangeEvent.CHANGE,function ():void {
+					seleccionarCarrera();
+				});
+			}
+			protected function chk_macuare_changeHandler(event:Event):void {
+				if (chk_macuare.selected) {
+					macuareInicia.text = (dd_hipodromos.selectedItem.Carreras - 6).toString();
+				}
+			}
+			
+			protected function chk_macuarito_changeHandler(event:Event):void
+			{
+				if (chk_macuarito.selected) {
+					macuaritoInicia.text = (dd_hipodromos.selectedItem.Carreras - 5).toString();	
+				}
+			}
+			
+			private function seleccionarCarrera():void {
+				reset();
+				carreras = Global.db.LeerComando('SELECT *, Count(*) Carreras FROM (SELECT * FROM Carreras WHERE Fecha = "'+Misc.formatFecha(date_fecha.selectedDate)+'" GROUP BY Carrera) GROUP BY Hipodromo');
+				if (carreras.length>0) {
+					dd_hipodromos.dataProvider = carreras;
+					var mac:Array = Global.db.LeerComando('SELECT * FROM Macuare JOIN Macuare_Datos ON Macuare.macuareId = Macuare_Datos.macuareId WHERE fecha = "'+date_fecha.fechaSelecionada+'" AND Hipodromo = "'+carreras[0].Hipodromo+'"').toArray();
+					if (mac.length>0) {
+						Alert.show("Ya se encuentra un macuare o macuarito registrado para esta fecha e hipodromo, ¿desea eliminar los datos anteriores?","",1|2,null,function(cerrar:CloseEvent):void {
+							if (cerrar.detail==Alert.YES) {
+								Global.db.Eliminar("Macuare",[{Fecha:date_fecha.fechaSelecionada,Hipodromo:dd_hipodromos.selectedItem.Hipodromo}],"AND");
+								Global.db.Eliminar("Macuare_Datos",[{macuareId:mac[0].macuareId}],"AND");
+								btnOK.enabled=true;
+								reset();
+							} else {
+								for (var i:int = 0; i < mac.length; i++) {
+									if (mac[i].descripcion=="Macuare") {
+										chk_macuare.selected=true;
+										macuareInicia.text=mac[i].inicio;
+										macuarePaga.text = mac[i].paga;
+									} else {
+										chk_macuarito.selected=true;
+										macuaritoInicia.text = mac[i].inicio;
+										macuaritoPaga.text = mac[i].paga;
+									}
+								}
+								btnOK.enabled=false;
+							}
+						});
+					} else {
+						btnOK.enabled=true;
+					}
+				} else {
+					dd_hipodromos.dataProvider=null;
+					btnOK.enabled=false;
+				}
+			}
+			
+			private function reset():void {
+				chk_macuare.selected=false;chk_macuarito.selected=false;
+				macuaritoInicia.text=""; macuaritoPaga.text="";
+				macuareInicia.text=""; macuarePaga.text="";
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Form width="423" height="299" fontSize="20">
+		<s:FormItem width="415" label="Fecha:">
+			<UI:myDate id="date_fecha" selectedDate="{new Date}"/>
+		</s:FormItem>
+		<s:FormItem width="415" label="Hipodromo:">
+			<s:DropDownList id="dd_hipodromos" width="200" labelField="Hipodromo"
+							requireSelection="true"/>
+		</s:FormItem>
+		<s:HGroup>
+			<s:SkinnableContainer skinClass="skins.sombraContainer" width="200">
+				<s:CheckBox id="chk_macuare" x="5" width="195" label="Macuare"
+							change="chk_macuare_changeHandler(event)" selected="false"/>
+				<s:Form x="0" y="21" enabled="{chk_macuare.selected}">
+					<s:FormItem x="0" y="28" height="21" label="Paga:">
+						<s:TextInput x="73" y="33" width="75" id="macuarePaga"/>
+					</s:FormItem>
+					<s:FormItem x="0" y="78" label="Inicio:">
+						<s:TextInput x="73" y="60" width="75" id="macuareInicia"/>				
+					</s:FormItem>
+				</s:Form>
+			</s:SkinnableContainer>
+			<s:SkinnableContainer skinClass="skins.sombraContainer" width="200">
+				<s:CheckBox id="chk_macuarito" x="5" width="195" label="Macuarito"
+							change="chk_macuarito_changeHandler(event)" selected="false"/>
+				<s:Form x="0" y="21" enabled="{chk_macuarito.selected}">
+					<s:FormItem x="0" y="28" height="21" label="Paga:">
+						<s:TextInput x="73" y="33" width="75" id="macuaritoPaga"/>
+					</s:FormItem>
+					<s:FormItem x="0" y="78" label="Inicio:">
+						<s:TextInput x="73" y="60" width="75" id="macuaritoInicia"/>				
+					</s:FormItem>
+				</s:Form>
+			</s:SkinnableContainer>
+		</s:HGroup>
+	</s:Form>
+	<s:Button id="btnOK" right="10" bottom="10" height="37" label="Aceptar" click="btnOK_clickHandler(event)"/>
+	<s:Button right="90" bottom="10" height="37" label="Cancelar" click="parent.removeChild(this)"/>
+</s:TitleWindow>

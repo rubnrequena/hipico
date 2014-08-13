@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:WindowedApplication xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					   xmlns:s="library://ns.adobe.com/flex/spark" 
+					   xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="windowedapplication1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import Clases.Banca.Banca;
+			import Clases.Banca.VOBanca;
+			import Clases.Ganador.Ganador;
+			import Clases.Ganador.VOPremiar;
+			import Clases.Macuare.Macuare;
+			import Clases.Remate.Remate;
+			import Clases.Tabla.Tabla;
+			import Clases.network.netManager;
+			
+			import VOs.VOCarrera;
+			import VOs.VODividendo;
+			import VOs.VOEjemplar;
+			
+			import core.Registros;
+			
+			import mx.events.FlexEvent;
+			
+			protected function windowedapplication1_creationCompleteHandler(event:FlexEvent):void {
+				
+				Global.iniciarExtOptions();
+				
+				var so:SharedObject = SharedObject.getLocal("Hipico");
+				var carpetaBD:File = new File('C:\\Hipico');
+				Global.banca = new Banca(carpetaBD);
+				Global.ganador = new Ganador(carpetaBD);
+				Global.tablas = new Tabla(carpetaBD);
+				Global.remate = new Remate(carpetaBD);
+				Global.macuare = new Macuare(carpetaBD);
+				
+				Global.banca.inicializar();
+				Global.ganador.inicializar();
+				Global.tablas.inicializar();
+				Global.remate.inicializar();
+				Global.macuare.inicializar();
+				
+				Global.registros = new Registros(Global.banca.config.webID);
+				Global.net = new netManager();
+			}
+			
+			protected function button1_clickHandler(event:MouseEvent):void {
+				//Global.ganador.sql('DELETE FROM Ventas WHERE FHC = "'+carrera.FHC+'"');
+				
+				var carrera:VOCarrera = new VOCarrera;
+				carrera.fecha = "2014-06-23";
+				carrera.hipodromo = "RANCHO ALEGRE";
+				carrera.carrera = 1;
+				
+				Global.ganador.sql('DELETE FROM Ganadores WHERE FHC = "'+carrera.FHC+'"');
+				Global.ganador.sql('DELETE FROM Premiados WHERE FHC = "'+carrera.FHC+'"');
+				Global.ganador.sql('DELETE FROM Premios WHERE FHC = "'+carrera.FHC+'"');
+				
+				var vpremiar:Vector.<VOPremiar> = new Vector.<VOPremiar>();
+				var premiar:VOPremiar = new VOPremiar;
+				premiar.banca = 1;
+				premiar.dividendos.push(new VODividendo(4,"CRISTAL SOFÍA",10));
+				//premiar.dividendos.push(new VODividendo(5,"CATAM",10));
+				vpremiar.push(premiar);
+				
+				var e:VOEjemplar;
+				var ganadores:Vector.<VOEjemplar> = new Vector.<VOEjemplar>;
+				
+				e = new VOEjemplar;
+				e.nombre = "CRISTAL SOFÍA";
+				e.numero = 4;
+				ganadores.push(e);
+				
+				Global.ganador.premios.premiar(vpremiar,carrera,ganadores,2);	
+				
+				/* Global.tablas.sql('DELETE FROM Ganadores WHERE FHC = "'+carrera.FHC+'"');
+				Global.tablas.sql('DELETE FROM Ventas WHERE FHC = "'+carrera.FHC+'"');
+				Global.tablas.sql('DELETE FROM Premiados WHERE FHC = "'+carrera.FHC+'"');
+				Global.tablas.sql('DELETE FROM Premios WHERE FHC = "'+carrera.FHC+'"'); */
+												
+				/* var bancas:Vector.<int> = new Vector.<int>;
+				bancas.push(1);
+				bancas.push(2);
+				
+				
+				
+				Global.tablas.premios.premiar(bancas,carrera,ganadores) */
+				
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:layout>
+		<s:VerticalLayout/>
+	</s:layout>
+	<s:Button label="Enviar premios" click="button1_clickHandler(event)"/>
+	<s:Label id="label"/>
+</s:WindowedApplication>

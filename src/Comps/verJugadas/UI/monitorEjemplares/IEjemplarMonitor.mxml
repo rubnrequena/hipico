@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%" addedToStage="itemrenderer1_addedToStageHandler(event)"
+				autoDrawBackground="false" fontFamily="Verdana" fontSize="16"
+				removedFromStage="itemrenderer1_removedFromStageHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import Common.Misc;
+			
+			import Sockets.HipicoSocketListener;
+			
+			import events.Evento;
+			private var __data:Object;
+			override public function set data(value:Object):void {
+				super.data = value;
+				__data = value;
+				if (value) {
+					numero.text = Misc.fillZeros(value.Numero,2);
+					ejemplar.text = value.Nombre;
+					ejemplar.toolTip = value.Nombre;
+					status = value.Retirado;
+				}
+				alternative.visible = itemIndex%2==0;
+			}
+			
+			protected function itemrenderer1_addedToStageHandler(event:Event):void {
+				retirar.addEventListener(MouseEvent.CLICK,retirar_onClick);
+				block.addEventListener(MouseEvent.CLICK,block_onClick);
+				
+			}
+			
+			protected function itemrenderer1_removedFromStageHandler(event:Event):void {
+				retirar.removeEventListener(MouseEvent.CLICK,retirar_onClick);
+				block.removeEventListener(MouseEvent.CLICK,block_onClick);
+			}
+			
+			protected function retirar_onClick(event:MouseEvent):void {
+				__data.Retirado = !__data.Retirado;
+				data = __data;
+				status = __data.Retirado;
+				dispatchEvent(new Evento(HipicoSocketListener.RETIRAR_EJEMPLAR,__data,true));
+			}
+			private function set status(value:Boolean):void {
+				retirar.alpha = value?.7:1;
+				bg.visible = value;
+				block.enabled = !value;
+				ejemplar.setStyle("color",value?0xFFFFFF:0x000000);
+				numero.setStyle("color",value?0xFFFFFF:0x000000);
+			}
+			
+			protected function block_onClick(event:MouseEvent):void {
+				dispatchEvent(new Evento(HipicoSocketListener.BLOQUEAR_EJEMPLAR,data,true));
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%" id="alternative">
+		<s:fill><s:SolidColor color="0xFFFFFF" alpha=".5"/></s:fill>
+	</s:Rect>
+	<s:Rect width="100%" height="100%" visible="false" id="bg">
+		<s:fill><s:SolidColor color="0xcd0606"/></s:fill>
+	</s:Rect>
+	<s:HGroup gap="1" width="100%" paddingLeft="3">
+		<s:Label id="numero" height="100%" maxDisplayedLines="1" paddingRight="2" text="00" verticalAlign="middle"/>
+		<s:Rect width="1" height="100%">
+			<s:fill><s:SolidColor color="0" alpha=".3"/></s:fill>
+		</s:Rect>
+		<s:Label id="ejemplar" width="100%" height="100%" maxDisplayedLines="1" paddingLeft="2" text="EJEMPLAR" verticalAlign="middle"/>
+		<s:Rect width="1" height="100%">
+			<s:fill><s:SolidColor color="0" alpha=".3"/></s:fill>
+		</s:Rect>
+		<s:Image buttonMode="true" id="retirar" width="32" height="32" smooth="true" source="images/iconos2/horse.png" toolTip="Retirar Ejemplar"/>
+		<s:Image buttonMode="true" source="images/block32.png" width="32" height="32" id="block" smooth="true" toolTip="Bloquear Ejemplar"/>
+	</s:HGroup>
+	<s:Rect width="100%" height="1" y="32">
+		<s:fill><s:SolidColor color="0" alpha=".3"/></s:fill>
+	</s:Rect>
+</s:ItemRenderer>

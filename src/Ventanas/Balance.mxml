@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			   xmlns:s="library://ns.adobe.com/flex/spark" 
+			   xmlns:mx="library://ns.adobe.com/flex/mx" width="700" height="450" title="Balance" 
+			   creationComplete="creationCompleteHandler()" chromeColor="#54795c">
+	<fx:Declarations>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import libVOs.Tablas;
+			import libVOs.infoCarrera;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.Grouping;
+			import mx.collections.GroupingCollection2;
+			import mx.collections.GroupingField;
+			import mx.collections.SummaryField2;
+			import mx.collections.SummaryRow;
+			
+			import org.osflash.signals.Signal;
+			
+			import spark.formatters.NumberFormatter;
+			public var iCarrera:infoCarrera;
+			private var nf:NumberFormatter = new NumberFormatter;
+			public var premioRecibido:Signal=new Signal;
+
+			private var datos:Array;
+			public function creationCompleteHandler():void
+			{
+				nf.fractionalDigits = 2;
+				//Ganador
+				var ganador:Array = Global.ganador.premios.leer({FHC:iCarrera.FHC},"*, (MontoJugado - Premios) Balance");
+				//Tablas
+				var tablas:Array = Global.tablas.premios.leer({FHC:iCarrera.FHC},"*, (MontoJugado - Premios) Balance");
+				//Remate
+				var remate:Array = Global.remate.premios.leer({FHC:iCarrera.FHC},"*, (MontoJugado - Premios) Balance");
+				datos = new Array;
+				if (ganador) datos = datos.concat(establecerTipo(ganador,"Ganador"));
+				if (tablas) datos = datos.concat(establecerTipo(tablas,"Tabla"));
+				if (remate) datos = datos.concat(establecerTipo(remate,"Remate"));
+				ddAgrupar.selectedIndex = Global.banca.config.agruparBalance;
+				if (datos.length>0) {
+					llenarDataGrid();
+				}
+			}
+			private function establecerTipo(data:Array,campo:String):Array {
+				if (data)
+					for (var i:int = 0; i < data.length; i++) { data[i].Categoria = campo; }
+				return data;
+			}
+			private function bancaIdFuncion(item:Object, field:GroupingField):String {
+				if (item) {
+					return Global.banca.bancas.bancaByID(item.BancaID).Nombre;
+				}
+				return "";
+			}
+			
+			protected function formatearDecimales(item:Object, column:AdvancedDataGridColumn):String
+			{
+				return nf.format(item[column.dataField]);	
+			}
+			
+			private function llenarDataGrid():void
+			{
+				// TODO Auto Generated method stub
+				var gc2:GroupingCollection2 = new GroupingCollection2;
+				var grupo:Grouping = new Grouping;
+				var campoBanca:GroupingField = new GroupingField("BancaID");
+				var campoCategoria:GroupingField;
+				if (ddAgrupar.selectedIndex==0) {
+					campoCategoria = new GroupingField("Categoria");
+					adgField.dataField = "Taquilla";
+				} else {
+					campoCategoria = new GroupingField("Taquilla");
+					adgField.dataField = "Categoria";
+				}
+				var sumBanca:SummaryRow = new SummaryRow;
+				var sumCats:SummaryRow = new SummaryRow;
+				campoBanca.groupingFunction = bancaIdFuncion;
+				sumBanca.fields = [new SummaryField2("MontoJugado"),new SummaryField2("Premios"),new SummaryField2("Balance")];
+				sumBanca.summaryPlacement = "group";
+				sumCats.fields = [new SummaryField2("MontoJugado"),new SummaryField2("Premios"),new SummaryField2("Balance")];
+				sumCats.summaryPlacement = "group";
+				campoBanca.summaries = [sumBanca];
+				campoCategoria.summaries = [sumCats];
+				grupo.fields = [campoBanca,campoCategoria];
+				gc2.grouping = grupo;
+				gc2.source = new ArrayCollection(datos);
+				dg.dataProvider = gc2;
+				gc2.refresh();
+				var t:Timer = new Timer(500,1);
+				t.addEventListener(TimerEvent.TIMER_COMPLETE,function():void {
+					dg.expandAll();
+				});
+				t.start();
+			}
+			
+		]]>
+	</fx:Script>
+	<mx:AdvancedDataGrid id="dg" x="0" y="0" width="100%" height="100%" contentBackgroundAlpha="1.0"
+						 contentBackgroundColor="#F9EAD2">
+		<mx:groupedColumns>
+			<mx:AdvancedDataGridColumn headerText="" width="300" id="adgField"/>
+			<mx:AdvancedDataGridColumnGroup headerText="Montos" width="400">
+				<mx:AdvancedDataGridColumn headerText="Monto Jugado" dataField="MontoJugado" labelFunction="formatearDecimales"/>
+				<mx:AdvancedDataGridColumn headerText="Premios" dataField="Premios" labelFunction="formatearDecimales"/>
+				<mx:AdvancedDataGridColumn headerText="Balance" dataField="Balance" itemRenderer="Comps.verJugadas.balanceRender" labelFunction="formatearDecimales" fontSize="16" fontWeight="bold"/>
+			</mx:AdvancedDataGridColumnGroup>
+		</mx:groupedColumns>
+	</mx:AdvancedDataGrid>
+	<s:FormItem x="452" y="-36" width="213" label="Agrupar:">
+		<s:DropDownList id="ddAgrupar" width="138" change="llenarDataGrid()" requireSelection="true" chromeColor="#3A768F">
+			<s:ArrayList>
+				<fx:Object label="Categoria"/>
+				<fx:Object label="Taquillas"/>
+			</s:ArrayList>
+		</s:DropDownList>
+	</s:FormItem>
+</s:TitleWindow>

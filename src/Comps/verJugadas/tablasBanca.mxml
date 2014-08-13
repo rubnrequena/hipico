@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="30"
+		 creationComplete="group1_creationCompleteHandler(event)"
+		 remove="group1_removeHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import Clases.Banca.VOBanca;
+			
+			import Common.Misc;
+			
+			import Events.SocketEvent;
+			
+			import mx.collections.ArrayList;
+			import mx.events.FlexEvent;
+						
+			public var tipo:String;
+			
+			private var _banca:int;
+			public function set banca(banca:int):void { _banca = banca; }
+			public function get banca():int { return _banca; }
+			
+			[Bindable] private var _datos:ArrayList=new ArrayList;
+			public function set tickets(value:Array):void {
+				_datos = new ArrayList(value);
+				lblTotal.text = total.toString();
+				updateSize();
+			}
+			public function get total():Number {
+				var n:Number=0;
+				for (var i:int = 0; i < _datos.length; i++) { n+= _datos.getItemAt(i).Monto; }
+				return n;
+			} 
+			private function updateSize():void {
+				if (_autoExpand) {
+					height = 32+(dg.height*_datos.length);
+				} else {
+					/* _tempHeight = 32+(dg.rowHeight*_datos.length);
+					_tempDgHeight = (dg.rowHeight*_datos.length)+2; */
+				}
+			}
+			
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				var c:int;
+				if (tipo=="Tabla") {
+					c = Global.net.clientesByCampo({tipo:"Tabla",banca:this.banca}).length;
+					Global.net.tabla.addEventListener("clientesChange",socket_onClienteChange);
+					bgColor.color = c>0?0xb3ff80:0xffffff;
+					tq_counter.text = Misc.fillZeros(c,2);
+				}
+			}
+			protected function socket_onClienteChange(event:SocketEvent):void {
+				if (event.socket.data.banca==Global.banca.bancas.bancaByID(_banca).ID && event.socket.data.tipo==this.tipo) {
+					if (Global.net.tabla.clientes>0) {
+						bgColor.color = 0xb3ff80;
+					} else {
+						bgColor.color = 0xffffff;
+					}
+					tq_counter.text = Misc.fillZeros(Global.net.tabla.clientes,2);
+				}
+			}			
+			protected function group1_removeHandler(event:FlexEvent):void {
+				Global.net.tabla.removeEventListener("clientesChange",socket_onClienteChange);
+			}
+			private var _tempHeight:int;
+			private var _tempDgHeight:int;
+			private var _autoExpand:Boolean=true;
+			protected function lblBanca_clickHandler(event:MouseEvent):void
+			{
+				_autoExpand= !_autoExpand;
+				if (_autoExpand) {
+					height = _tempHeight;
+					dg.height = _tempDgHeight;
+					lblBanca.toolTip = "Contraer";
+				} else {
+					_tempHeight = this.height;
+					_tempDgHeight = dg.height;
+					this.height = 32;
+					dg.height = 0;
+					lblBanca.toolTip = "Expandir";
+				}
+			}
+			
+			
+			
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%" >
+		<s:fill>
+			<s:SolidColor id="bgColor" color="0xFFFFFF" alpha=".4"/>
+		</s:fill>
+	</s:Rect>
+	<s:Label id="lblBanca" y="0" left="29" right="66" height="30" fontFamily="Verdana" buttonMode="true" toolTip="Contraer"
+			 fontSize="20" text="Banca" verticalAlign="middle" click="lblBanca_clickHandler(event)" maxDisplayedLines="1"/>
+	<s:Rect right="0" height="100%" width="100%">
+		<s:fill>
+			<s:LinearGradient >
+				<s:GradientEntry color="#C8C8EF" alpha="0" ratio=".20"/>
+				<s:GradientEntry color="#C8C8EF" alpha="1" ratio=".95"/>
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+	<s:Label y="10" right="5" fontFamily="Courier New" fontSize="20" fontWeight="bold" text="0" id="lblTotal"/>
+	<s:DataGroup id="dg" y="30" left="0" right="0" height="0" dataProvider="{_datos}" fontSize="20">
+		
+	</s:DataGroup>
+	<s:Group  x="0" y="0" width="25" height="30" id="grp_tq_counter">
+		<s:Rect x="0" y="0" width="100%" height="30">
+			<s:fill>
+				<s:SolidColor alpha="0.8"/>
+			</s:fill>
+		</s:Rect>
+		<s:Label id="tq_counter" x="0" height="14" color="0xFFFFFF" fontFamily="Courier New"
+				 fontSize="20" fontWeight="bold" text="00" textAlign="center" verticalCenter="0"/>
+	</s:Group>
+</s:Group>

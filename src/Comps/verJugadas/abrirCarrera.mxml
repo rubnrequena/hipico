@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+					  xmlns:s="library://ns.adobe.com/flex/spark"
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  xmlns:UI="UI.*"
+					  backgroundAlpha="0.7" backgroundColor="#000000" chromeColor="#C3E47B"
+					  creationComplete="panel1_creationCompleteHandler(event)"
+					  addedToStage="skinnablecontainer1_addedToStageHandler(event)"
+					  width="100%" height="100%" xmlns:Comps="Comps.*">
+	<fx:Script>
+		<![CDATA[
+			import Common.Misc;
+			
+			import libVOs.infoCarrera;
+			
+			import mx.collections.ArrayList;
+			import mx.events.CalendarLayoutChangeEvent;
+			import mx.events.FlexEvent;
+			import mx.utils.ObjectUtil;
+			
+			import org.osflash.signals.Signal;
+			public var selCarrera:Signal = new Signal(infoCarrera);
+			public var iCarrera:infoCarrera = new infoCarrera;
+			protected function btnOk_clickHandler(event:MouseEvent):void {
+				if (fecha.selectedDate && hipodromos.selectedIndex>-1) {
+					iCarrera.Fecha = fecha.selectedDate;
+					iCarrera.Hipodromo = hipodromos.selectedItem.Hipodromo;
+					iCarrera.Carrera = carrera.value;
+					selCarrera.dispatch(iCarrera);
+				}
+			}
+			
+			protected function panel1_creationCompleteHandler(event:FlexEvent):void {
+				fecha.addEventListener(CalendarLayoutChangeEvent.CHANGE,fecha_changeHandler);
+				hipodromos.dataProvider = hipodromosDelDia;
+			}
+			protected function this_onKeyUp(event:KeyboardEvent):void {
+				var d:Date;
+				if (event.keyCode==Keyboard.LEFT) {
+					d = ObjectUtil.copy(fecha.selectedDate) as Date;
+					d.time -= 86400000;
+					fecha.selectedDate = d;
+					fecha_changeHandler(new CalendarLayoutChangeEvent(CalendarLayoutChangeEvent.CHANGE,false,false,d));
+				}
+				if (event.keyCode==Keyboard.RIGHT) {
+					d = ObjectUtil.copy(fecha.selectedDate) as Date;
+					d.time += 86400000;;
+					fecha.selectedDate = d;
+					fecha_changeHandler(new CalendarLayoutChangeEvent(CalendarLayoutChangeEvent.CHANGE,false,false,d));
+				}
+				if (event.keyCode==Keyboard.UP)
+					carrera.value++;
+				if (event.keyCode==Keyboard.DOWN)
+					carrera.value--;
+				
+				if (event.keyCode==Keyboard.ENTER)
+					btnOk_clickHandler(new MouseEvent(MouseEvent.CLICK));
+			}
+			private var hipos:ArrayList;
+			private function get hipodromosDelDia():ArrayList {
+				hipos = new ArrayList(Global.banca.carreras.hipodromosDia(fecha.fechaSelecionada));
+				btnOk.enabled = hipos.length>0;
+				return hipos;
+			}
+			
+			private function fecha_changeHandler(event:CalendarLayoutChangeEvent):void {
+				hipodromos.dataProvider = hipodromosDelDia;
+			}
+			
+			protected function skinnablecontainer1_addedToStageHandler(event:Event):void {
+				stage.addEventListener(KeyboardEvent.KEY_UP,this_onKeyUp);
+				addEventListener(Event.REMOVED_FROM_STAGE,stage_onRemoveFromStage);
+				this.setFocus();
+			}
+			
+			protected function stage_onRemoveFromStage(event:Event):void {
+				removeEventListener(Event.REMOVED_FROM_STAGE,stage_onRemoveFromStage);
+				stage.removeEventListener(KeyboardEvent.KEY_UP,this_onKeyUp);
+			}
+			
+		]]>
+	</fx:Script>
+
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Panel width="382" height="176" title="Seleccione Carrera" verticalCenter="0" horizontalCenter="0">
+		<mx:Form width="380" height="100%" fontSize="18" defaultButton="{btnOk}" verticalScrollPolicy="off" horizontalScrollPolicy="off">
+			<mx:FormItem label="Fecha:">
+				<UI:myDate id="fecha" selectedDate="{new Date}" formatString="{Misc.fFECHANORMAL}" />
+			</mx:FormItem>
+			<mx:FormItem label="Hipodromo:">
+				<s:DropDownList id="hipodromos" labelField="Hipodromo" width="228" height="27" requireSelection="true"/>
+			</mx:FormItem>
+			<mx:FormItem label="Carrera:">
+				<Comps:NumericNoKeyboard id="carrera" minimum="1" maximum="20"/>
+			</mx:FormItem>
+		</mx:Form>
+		<s:Button id="btnOk" right="10" bottom="10" width="50" height="45"
+				  click="btnOk_clickHandler(event)" icon="images/accept.png" skinClass="skins.W8Button"/>
+	</s:Panel>
+</s:SkinnableContainer>

@@ -1,0 +1,180 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="30"
+					  backgroundAlpha="1" backgroundColor="#ffffff"
+					  creationComplete="creationCompleteHandler(event)"
+					  removedFromStage="removedFromStageHandler(event)"
+					  implements="Comps.verJugadas.UI.IMonitor" buttonMode="true">
+	<fx:Script>
+		<![CDATA[
+			import Clases.Banca.VOBanca;
+			
+			import Common.Misc;
+			
+			import Events.SocketEvent;
+			
+			import mx.collections.ArrayList;
+			import mx.events.FlexEvent;
+			public var tipo:String;
+			public var banca:VOBanca;
+			
+			private var _tickets:Array;
+			private var _retirados:Array = new Array;
+			
+			private var _total:Number=0;
+			
+			private var c:int;
+			public function get total():Number { return _total; }
+			
+			public function set tickets(value:Array):void {
+				if (value) {
+					_tickets = value;
+					var len:int = _tickets.length-1;
+					for (var i:int = len; i > -1; i--) {
+						if (_tickets[i].Monto>0) {
+							if (_tickets[i].Retirado==true) {
+								_retirados = _retirados.concat(_tickets.splice(i,1));
+							}
+						} else {
+							_tickets.splice(i,1);
+						}
+					}
+				} else {
+					_tickets = [];
+				}
+				updateVentaTabla()
+			}
+			protected function updateVentaTabla(p:Vector.<int>=null):void {
+				if (_tickets.length>0) {
+					_tickets.sortOn("Numero",Array.NUMERIC);
+					dg.dataProvider = new ArrayList(_tickets);
+					_total=0;
+					for (var i:int = 0; i < _tickets.length; i++) {
+						_total += _tickets[i].Monto*_tickets[i].Cantidad;
+					}
+					lblTotal.text = _total.toString();
+					updateSize();
+					if (p) {
+						setTimeout(function ():void {
+							parpadearEjemplares(p);
+						},100);
+					}
+					visible=true;includeInLayout=true;
+				} else {
+					visible=false;includeInLayout=false;
+				}
+			}
+			public function pushTickets(ticketsNuevos:Array):void {
+				var j:int; var i:int; var existe:Boolean; var p:Vector.<int> = new Vector.<int>;
+				var tn:int = ticketsNuevos.length;
+				var t:int = _tickets.length;
+				for (i = 0; i < tn; i++) {
+					existe=false; 
+					for (j = 0; j < t; j++) {
+						if (_tickets[j].Numero==ticketsNuevos[i].Numero) {
+							_tickets[j].Cantidad += ticketsNuevos[i].Cantidad;
+							existe=true; break;
+						}
+						if (_tickets[j].Numero>ticketsNuevos[i].Numero) { break; }
+					}
+					if (!existe) _tickets.splice(j,0,ticketsNuevos[i]);
+					p.push(j);
+				}
+				updateVentaTabla(p);
+			}
+			public function removerTickets(tickets:Array):void {
+				for (var i:int = 0; i < tickets.length; i++) {
+					for (var j:int = 0; j < _tickets.length; j++) {
+						if (tickets[i].Numero==_tickets[j].Numero) {
+							(dg.getElementAt(j) as IVentaEjemplarTabla).parpadear();
+							_tickets[j].Cantidad -= tickets[i].Cantidad; 
+						}
+					}
+				}
+				this.tickets = _tickets;
+			}
+			
+			private function updateSize():void {
+				if (_tickets && _tickets.length>0) {
+					dg.height = (_tickets.length*20);
+					this.height = dg.height+36;
+				} else {
+					this.height = 30;
+					dg.height = 0;
+				}
+			}
+			
+			protected function creationCompleteHandler(event:FlexEvent):void {
+				lblBanca.text = banca.Nombre.split("CENTRO HIPICO").join("C.H.");
+				Global.net.addEventListener(SocketEvent.CONECTADO,socket_change);
+				Global.net.addEventListener(SocketEvent.DESCONECTADO,socket_change);
+				if (tipo=="Ganador")
+					tq_counter.text = Misc.fillZeros(banca.numGanadores,2);
+				if (tipo=="Tabla")
+					tq_counter.text = Misc.fillZeros(banca.numTablas,2);
+			}
+			
+			protected function socket_onClienteChange(event:SocketEvent):void {
+				if (event.socket.data.banca==banca.ID && event.socket.data.tipo==this.tipo) {
+					c = Global.net.clientesByCampo({tipo:this.tipo,banca:this.banca}).length;
+					tq_counter.text = Misc.fillZeros(c,2);
+				}
+			}
+			
+			protected function socket_change(event:SocketEvent):void {
+				if (tipo=="Ganador")
+					tq_counter.text = Misc.fillZeros(banca.numGanadores,2);
+				if (tipo=="Tabla")
+					tq_counter.text = Misc.fillZeros(banca.numTablas,2);
+			}
+			
+			protected function removedFromStageHandler(event:Event):void {
+				Global.net.removeEventListener(SocketEvent.CONECTADO,socket_change);
+				Global.net.removeEventListener(SocketEvent.DESCONECTADO,socket_change);
+			}
+			
+			private function parpadearEjemplares(p:Vector.<int>):void {
+				for (var i:int = 0; i < p.length; i++) {
+					(dg.getElementAt(p[i]) as IVentaEjemplarTabla).parpadear();
+				}
+			}
+			public function ejemplarRetirado(numero:int,retirado:Boolean):void {
+				var i:int;
+				if (retirado) {
+					for (i = 0; i < _tickets.length; i++) {
+						if (_tickets[i].Numero==numero) _retirados = _retirados.concat(_tickets.splice(i,1));
+					}
+				} else {
+					for (i = 0; i < _retirados.length; i++) {
+						if (_retirados[i].Numero==numero) _tickets = _tickets.concat(_retirados.splice(i,1));
+					}
+				}
+				updateVentaTabla();
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Label id="lblBanca" y="0" left="29" right="66" height="30" fontFamily="Verdana" buttonMode="true" toolTip="Contraer" fontSize="20" text="Banca" verticalAlign="middle" maxDisplayedLines="1"/>
+	<s:Rect right="0" height="30" width="100%">
+		<s:fill>
+			<s:LinearGradient >
+				<s:GradientEntry color="#C8C8EF" alpha="0" ratio=".20"/>
+				<s:GradientEntry color="#C8C8EF" alpha="1" ratio=".95"/>
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+	<s:Label y="10" right="5" fontFamily="Courier New" fontSize="20" fontWeight="bold" text="0" id="lblTotal"/>
+	<s:DataGroup id="dg" y="30" left="0" right="0" height="0" fontSize="20" itemRenderer="Comps.verJugadas.UI.monitorVentas.tabla.IVentaEjemplarTabla">
+		<s:layout><s:VerticalLayout gap="1"/></s:layout>
+	</s:DataGroup>
+	<s:Group  x="0" y="0" width="25" height="30" id="grp_tq_counter">
+		<s:Rect x="0" y="0" width="100%" height="30"><s:fill><s:SolidColor alpha="0.8"/></s:fill></s:Rect>
+		<s:Label id="tq_counter" x="0" height="14" color="0xFFFFFF" fontFamily="Courier New" fontSize="20" fontWeight="bold" text="00" textAlign="center" verticalCenter="0"/>
+	</s:Group>
+	<s:Rect width="100%" height="100%"><s:stroke><s:SolidColorStroke color="#cccccc" alpha="1"/></s:stroke></s:Rect>
+</s:SkinnableContainer>
+

@@ -1,0 +1,60 @@
+<?xml version="1.0"?>
+<!--
+  Created by Ruben on 25-03-2014.
+-->
+<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" width="100%" height="100%"
+        currentState="lista" label="Dividendos">
+    <s:states>
+        <s:State name="lista"/>
+        <s:State name="nuevo"/>
+    </s:states>
+    <s:Group width="100%" height="100%" itemCreationPolicy="immediate" includeIn="lista" id="listaView">
+        <s:layout><s:VerticalLayout/></s:layout>
+        <s:HGroup>
+            <s:Button id="agregarButton" label="Agregar" styleName="verJugadas_top"/>
+            <s:Button id="removerButton" label="Remover" styleName="verJugadas_top"/>
+        </s:HGroup>
+        <s:List id="lista" itemRenderer="UI.Main.config.DividendosItem" width="100%" height="100%" />
+    </s:Group>
+    <s:Scroller width="100%" height="100%" itemCreationPolicy="immediate" includeIn="nuevo" id="nuevoView">
+        <s:Group>
+            <s:HGroup>
+                <s:Button id="nuevoAtrasButton" label="Atras"/>
+                <s:Button id="nuevoGuardarButton" label="Guardar" fontWeight="bold"/>
+            </s:HGroup>
+            <s:Form>
+                <s:FormItem label="Banca">
+                    <s:DropDownList id="bancaList" requireSelection="true" labelField="Nombre" />
+                </s:FormItem>
+                <s:FormItem label="Hipodromos:">
+                    <s:VGroup id="hipodromosGroup">
+
+                    </s:VGroup>
+                </s:FormItem>
+                <s:FormItem label="Empate:">
+                    <s:TextInput id="empateInput" />
+                </s:FormItem>
+                <s:FormItem label="Tope:">
+                    <s:TextInput id="topeInput" />
+                </s:FormItem>
+                <s:FormItem label="Rangos"/>
+                <s:Label color="gray" text="Usar especificar la suma del dividendo usar el simbolo +. Ej: +5.5"/>
+                <s:HGroup>
+                    <s:TextInput width="50" id="min1"/>
+                    <s:TextInput width="50" id="max1"/>
+                    <s:TextInput width="50" id="val1"/>
+                </s:HGroup>
+                <s:HGroup>
+                    <s:TextInput width="50" id="min2"/>
+                    <s:TextInput width="50" id="max2"/>
+                    <s:TextInput width="50" id="val2"/>
+                </s:HGroup>
+                <s:HGroup>
+                    <s:TextInput width="50" id="min3"/>
+                    <s:TextInput width="50" id="max3"/>
+                    <s:TextInput width="50" id="val3"/>
+                </s:HGroup>
+            </s:Form>
+        </s:Group>
+    </s:Scroller>
+</s:NavigatorContent>

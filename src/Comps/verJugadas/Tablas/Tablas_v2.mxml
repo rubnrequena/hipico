@@ -1,0 +1,120 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:Tablas="Comps.verJugadas.Tablas.*"
+			   width="700" height="500" close="parent.removeChild(this)"
+			   creationComplete="titlewindow1_creationCompleteHandler(event)"
+			   title="Administrar Tablas" fontFamily="Verdana"
+			   removedFromStage="onRemovedFromStage(event)">
+	
+	<fx:Metadata>
+		[Event(name="tablaGuardada", type="flash.events.Event")]
+	</fx:Metadata>
+	<fx:Script source="Tablas_v2_as.as"/>
+	<fx:Script source="Tablas_v2_as_Insertar.as"/>
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="insertarTablas"/>
+		<s:State name="tablaGuardada"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:transitions>
+		<s:Transition fromState="*" toState="*">
+			<s:Parallel>
+				<s:Fade target="{grp_home}" duration="400"/>
+				<s:Fade target="{grp_insertar}" duration="400" startDelay="200"/>
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+	<s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:LinearGradient>
+				<s:GradientEntry color="#54795c" alpha="1"/>
+			</s:LinearGradient>
+		</s:fill>
+	</s:Rect>
+	
+	<s:Group id="grp_home" width="100%" height="100%" includeIn="State1">
+		<s:Scroller left="0" right="312" top="81" bottom="0">
+			<s:VGroup id="grp_bancas">
+			</s:VGroup>	
+		</s:Scroller>
+		
+		<s:Label id="lblBanca_mod" y="46" right="107" width="192" height="39"
+				 fontFamily="Verdana" fontSize="12" text="Banca" verticalAlign="middle" maxDisplayedLines="2"/>
+		<s:Button y="3" right="3" label="Guardar" styleName="verJugadas_top"  click="btnGuardar_clickHandler()" fontSize="20" icon="images/accept32.png" id="btnGuardar"/>
+		<s:DataGrid id="dg_tablas_banca" y="81" right="0" width="305" height="386" contentBackgroundColor="#F9EAD2" editable="true" fontSize="16" requestedRowCount="4">
+			<s:columns>
+				<s:ArrayList>
+					<s:GridColumn dataField="Numero" headerText="#" width="33" editable="false"></s:GridColumn>
+					<s:GridColumn dataField="Nombre" headerText="Nombre" width="130" editable="false"></s:GridColumn>
+					<s:GridColumn dataField="Monto" headerText="Monto" width="70"></s:GridColumn>
+					<s:GridColumn dataField="Tablas" headerText="Cant." width="70"></s:GridColumn>
+				</s:ArrayList>
+			</s:columns>
+		</s:DataGrid>
+		
+		<s:Spinner id="spinner" includeIn="State1" x="599" y="46" width="30" height="29"
+				   chromeColor="#3A768F" click="spinner_clickHandler(event)" maximum="2" minimum="1"
+				   value="1"/>
+		<s:Label includeIn="State1" x="630" y="49" fontFamily="Courier New" text="Aumentar"/>
+		<s:Label includeIn="State1" x="629" y="63" fontFamily="Courier New" text="Disminuir"/>
+		<s:Button x="3" y="3" label="Nueva Tabla" click="currentState='insertarTablas'" fontSize="20"
+				  icon="images/add32.png" styleName="verJugadas_top"/>
+		<s:Button x="191" y="3" height="36" label="Eliminar Tablas" fontSize="20" styleName="verJugadas_top" id="eliminarTablas"/>
+	</s:Group>
+	<s:Group id="grp_insertar" width="100%" height="100%" includeIn="insertarTablas,tablaGuardada" creationComplete="grp_insertar_creationCompleteHandler(event)">
+		<s:Rect width="100%" height="100%">
+			<s:fill>
+				<s:SolidColor color="0" alpha=".8"/>
+			</s:fill>
+		</s:Rect>
+		<s:Group left="20" right="20" top="10" bottom="9">
+			<s:Image source="images/iconos2/bg3.jpg" width="100%" height="100%" x="0" y="0" scaleMode="stretch" smooth="true"/>
+			<mx:LinkButton includeIn="insertarTablas" y="2" right="0" width="58" height="22"
+						   label="Atras" click="currentState='State1'" color="#FFFFFF"
+						   fontWeight="bold"/>
+			<s:DataGrid id="dg_insertar" left="10" right="10" top="25" bottom="34"
+						contentBackgroundColor="#F9EAD2" editable="true" fontSize="15"
+						gridItemEditorSessionSave="datagrid1_gridItemEditorSessionSaveHandler(event)"
+						keyUp="dg_insertar_keyUpHandler(event)" requestedRowCount="4"
+						selectionChange="dg_insertar_selectionChangeHandler(event)">
+				<s:columns>
+					<s:ArrayList>
+						<s:GridColumn dataField="Numero" headerText="#" width="35" editable="false" itemRenderer="Comps.verJugadas.retiradoRender"></s:GridColumn>
+						<s:GridColumn dataField="Nombre" headerText="Nombre" width="415" editable="false" itemRenderer="Comps.verJugadas.retiradoRender"></s:GridColumn>
+						<s:GridColumn dataField="Monto" headerText="Monto"></s:GridColumn>
+					</s:ArrayList>
+				</s:columns>
+			</s:DataGrid>
+			<s:Label id="lbl_total" right="10" bottom="8" width="133" color="#FFFFFF" fontSize="20" fontWeight="bold" text="Total: 0.00"/>
+			<s:Label id="lbl_Paga" right="205" bottom="8" width="133" color="#FFFFFF" fontSize="20" fontWeight="bold" text="Paga: 0.00"/>
+			<s:Button includeIn="insertarTablas" x="10" bottom="5" width="112" height="25" label="Confirmar" click="btnConfirmar_insertar(event)" styleName="verJugadas_top"/>
+			<s:Rect width="100%" height="100%">
+				<s:stroke>
+					<s:SolidColorStroke color="0xcccccc"/>
+				</s:stroke>
+			</s:Rect>
+		</s:Group>
+	</s:Group>
+	<s:Label includeIn="State1" y="60" right="317" fontFamily="Courier New" fontSize="13"
+			 fontWeight="bold" text="Cant"/>
+	<s:Label includeIn="State1" y="60" right="357" fontFamily="Courier New" fontSize="13"
+			 fontWeight="bold" text="Paga"/>
+	
+	
+	
+	<s:Group id="locked" includeIn="State1" top="0" bottom="0" right="0" width="305" visible="false">
+		<s:Rect width="100%" height="100%" >
+			<s:fill>
+				<s:SolidColor color="0" alpha=".7"/>
+			</s:fill>
+		</s:Rect>
+		<s:Image verticalCenter="0" horizontalCenter="0" source="images/locked.png"/>
+	</s:Group>
+	<s:CheckBox includeIn="State1" x="29" y="59" id="select" click="select_clickHandler(event)"/>
+	<s:Image includeIn="tablaGuardada" verticalCenter="0" horizontalCenter="0" source="images/confirmar_256.png" />
+</s:TitleWindow>

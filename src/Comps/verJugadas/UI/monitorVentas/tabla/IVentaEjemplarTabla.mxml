@@ -1,0 +1,48 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%" height="20" autoDrawBackground="true" fontFamily="Verdana" fontSize="16">
+	<fx:Script>
+		<![CDATA[
+			import Common.Misc;
+			
+			import flash.utils.setTimeout;
+			
+			import mx.events.FlexEvent;
+			override public function set data(value:Object):void {
+				super.data = value;
+				if (value) {
+					num.text = Misc.fillZeros(value.Numero,2);
+					ejemplar.text = value.Nombre;
+					ejemplar.toolTip = value.Nombre;
+					monto.text = String(value.Monto*value.Cantidad);
+					cantidad.text = Misc.fillZeros(value.Cantidad,2);
+				}
+			}
+			public function parpadear():void {
+				bg.color = 0xFF0000;
+				setTimeout(function ():void {
+					bg.color = 0xffffff;
+				},200);
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:SolidColor color="0xffffff" id="bg" alpha="1"/>
+		</s:fill>
+	</s:Rect>
+	<s:HGroup width="100%" paddingLeft="3" paddingRight="3" paddingTop="4" paddingBottom="3">
+		<s:Label id="num" text="00"/>
+		<s:Label id="ejemplar" width="100%" text="EJEMPLAR"/>
+		<s:Label id="cantidad" text="00"/>
+		<s:Label id="monto" width="70" fontWeight="bold" text="000000" textAlign="right"/>
+	</s:HGroup>
+	<s:Rect width="100%" height="1">
+		<s:fill>
+			<s:SolidColor color="0x000000" alpha=".3"/>
+		</s:fill>
+	</s:Rect>
+</s:ItemRenderer>

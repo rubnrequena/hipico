@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="false" fontFamily="Verdana" fontSize="16">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayList;
+			override public function set data(value:Object):void {
+				super.data = value;
+				if (value) {
+					taquilla.text = value.Taquilla;
+					dataList.dataProvider = new ArrayList(value.data);
+					dataList.height = _maxHeight;
+				}
+			}
+			
+			protected function button1_clickHandler(event:MouseEvent):void {
+				dataList.height = dataList.height>0?0:_maxHeight;
+			}
+			protected function get _maxHeight():int {
+				return dataList.dataProvider.length*31>620?620:(dataList.dataProvider.length*31)+2;
+			}
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%">
+		<s:fill><s:SolidColor color="#3A768F"/></s:fill>
+	</s:Rect>
+	<s:HGroup y="2" left="5" right="5" verticalAlign="middle">
+		<s:Label id="taquilla" width="100%" color="#FFFFFF" text="TAQUILLA_00"/>
+		<s:Button skinClass="spark.skins.spark.mediaClasses.fullScreen.FullScreenButtonSkin" click="button1_clickHandler(event)" />
+	</s:HGroup>
+	<s:List id="dataList" x="0" y="28" width="100%" maxHeight="620" itemRenderer="Comps.verJugadas.UI.monitorVentas.ganador.IVentaEjemplarGanadorTickets">
+	</s:List>
+</s:ItemRenderer>

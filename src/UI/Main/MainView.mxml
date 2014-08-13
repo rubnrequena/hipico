@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vistas:VistaUI xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"  fontFamily="Verdana"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" cacheAsBitmap="true" xmlns:bancoDatos="UI.Main.bancoDatos.*" xmlns:vistas="vistas.*">
+	<vistas:states>
+		<s:State name="State1"/>
+	</vistas:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Group width="100%" height="100%">
+		<s:Button id="btnAcerca" y="10" right="10" width="127" label="Acerca de [?]" buttonMode="true"
+				  fontFamily="Courier New" styleName="mainMenu"/>
+		<s:Button id="btCarrera" x="13" y="5" label="Carreras" icon="images/Carreras.png" styleName="mainMenu"/>
+		<s:Button id="verJugadas" x="107" y="5" label="Jugadas" icon="images/verJugadas.png" iconPlacement="top"
+				  styleName="mainMenu"/>
+		<s:Button id="btnHipodromos" left="10" bottom="109" width="100" height="86" label="Hipodromos" icon="images/CH.png" iconPlacement="top"
+				  styleName="mainMenu"/>
+		<s:Button id="btnTopes" left="10" bottom="209" width="100" height="86" label="Topes" icon="images/CH.png" iconPlacement="top"
+				  styleName="mainMenu"/>
+		<s:Button id="btnConfig" left="10" bottom="10" width="100" height="85" label="Configuración" icon="images/Config.png" iconPlacement="top"
+				  styleName="mainMenu"/>
+		<s:Button id="btnReporte" x="201" y="5" label="Reportes" icon="images/Reportes.png" iconPlacement="top" styleName="mainMenu"/>
+		<s:Button id="btnMacurare" x="295" y="5" width="84" label="Macuare" icon="images/macuare.png" iconPlacement="top"
+				  styleName="mainMenu"/>
+		<s:Button enabled="false" x="389" y="5" width="86" label="Chat" id="btnChat" icon="images/chat48.png" iconPlacement="top" styleName="mainMenu"/>
+		<s:Button id="btnBancas" x="485" y="5" label="Bancas" icon="images/bancas.png" iconPlacement="top" styleName="mainMenu"/>
+		<s:Button id="btnTaquillas" x="580" y="5" label="Taquillas" icon="images/bancas.png" iconPlacement="top" styleName="mainMenu"/>
+		<s:Button id="btnConexiones" right="10" bottom="10" width="138" label="Conexiones"
+				  icon="images/iconos2/disconnect.png" styleName="verJugadas_top"/>
+		<s:Button id="btnBancoDatos" y="40" right="10" width="125" label="Banco de Datos"
+				  styleName="mainMenu"/>
+	</s:Group>
+</vistas:VistaUI>

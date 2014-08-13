@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" maxWidth="268"
+				autoDrawBackground="false" fontSize="16" fontFamily="Verdana">
+	<fx:Script>
+		<![CDATA[
+			import Common.Misc;
+			override public function set data(value:Object):void {
+				super.data = value;
+				if (value) {
+					numero.text = Misc.fillZeros(value.Numero,2);
+					nombre.text = value.Nombre;
+					nombre.toolTip = value.Nombre;
+					monto.text = value.Monto;
+					cantidad.text = Misc.fillZeros(value.Cantidad,2);
+				}
+				alternative.visible = itemIndex%2==0;
+			}
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%" id="alternative">
+		<s:fill>
+			<s:SolidColor color="0xFFFFFF" alpha=".5"/>
+		</s:fill>
+	</s:Rect>
+	<s:HGroup width="100%" height="32" gap="2" paddingLeft="3" paddingRight="3">
+		<s:Label id="numero" text="00" height="32" verticalAlign="middle" paddingTop="2" />
+		<s:Rect width="1" height="100%">
+			<s:fill>
+				<s:SolidColor color="0" alpha=".3"/>
+			</s:fill>
+		</s:Rect>
+		<s:Label id="nombre" width="100%" height="32" maxDisplayedLines="1" paddingLeft="3" paddingTop="2"
+				 paddingRight="3" text="EJEMPLAR" verticalAlign="middle"/>
+		<s:Rect width="1" height="100%">
+			<s:fill>
+				<s:SolidColor color="0" alpha=".3"/>
+			</s:fill>
+		</s:Rect>
+		<s:Label id="cantidad" width="30" height="32" text="00" textAlign="center" verticalAlign="middle" paddingTop="2"/>
+		<s:Rect width="1" height="100%">
+			<s:fill>
+				<s:SolidColor color="0" alpha=".3"/>
+			</s:fill>
+		</s:Rect>
+		<s:Label id="monto" width="70" height="32" text="00000" textAlign="right" verticalAlign="middle" paddingTop="2"/>
+	</s:HGroup>
+	<s:Rect width="100%" height="1" y="32">
+		<s:fill>
+			<s:SolidColor color="0" alpha=".3"/>
+		</s:fill>
+	</s:Rect>
+</s:ItemRenderer>

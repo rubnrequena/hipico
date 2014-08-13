@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:UI="UI.*" fontFamily="Verdana"
+			   width="800" height="372"
+			   creationComplete="onComplete()" title="Permiar Macuare">
+	<fx:Script source="wPremiarMacuare_as.as"/>
+	<s:states>
+		<s:State name="paso1"/>
+		<s:State name="paso2"/>
+		<s:State name="paso3"/>
+	</s:states>
+	<fx:Declarations>
+		<s:RadioButtonGroup id="radiogroup1"/>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Label x="10" y="10" fontFamily="Courier New" fontSize="30" text="Paso 1:"
+			 text.paso1="Paso 1: Seleccione Macuares"
+			 text.paso2="Paso 2: Introduzca Ganadores"
+			 text.paso3="Paso 3: Confirme Ganadores"/>
+	<s:Form includeIn="paso1" x="10" y="47" width="410" height="136" fontSize="20">
+		<s:FormItem label="Fecha:">
+			<UI:myDate id="fecha"/>
+		</s:FormItem>
+		<s:FormItem width="392" label="Hipodromo:">
+			<s:DropDownList id="hipodromos" width="243" labelField="hipodromo" requireSelection="true"/>
+		</s:FormItem>
+	</s:Form>
+	<s:Button right="10" bottom="289" width="155" height="40" label="Siguiente"  fontSize="16"
+			  click.paso1="btnSiguiente_click_paso1(event)"
+			  click.paso2="btnSiguiente_click_paso2(event)"
+			  click.paso3="btnSiguiente_click_paso3(event)" label.paso3="Enviar Premios"/>
+	<s:Group id="resultadosGroup" includeIn="paso2" width="652" horizontalCenter="0"
+			 verticalCenter="0">
+		<s:HGroup id="g1" x="10" y="0" width="632" height="43">
+		</s:HGroup>
+		<s:HGroup id="g2" x="10" y="50" width="632" height="43">
+		</s:HGroup>
+		<s:HGroup id="g3" x="10" y="101" width="632" height="43">
+		</s:HGroup>
+	</s:Group>
+	<s:DataGrid includeIn="paso3" x="10" y="58" width="396" height="271" requestedRowCount="4" id="dgGanadores">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn dataField="hora" headerText="Hora"></s:GridColumn>
+				<s:GridColumn dataField="monto" headerText="Monto"></s:GridColumn>
+				<s:GridColumn dataField="ejemplares" headerText="Ejemplares"></s:GridColumn>
+				<s:GridColumn dataField="premio" headerText="Premio"></s:GridColumn>
+			</s:ArrayList>
+		</s:columns>
+	</s:DataGrid>
+	<s:DataGrid id="dgGanadores0" includeIn="paso3" y="58" right="9" width="375" height="271"
+				requestedRowCount="4">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn dataField="hora" headerText="Hora"></s:GridColumn>
+				<s:GridColumn dataField="monto" headerText="Monto"></s:GridColumn>
+				<s:GridColumn dataField="ejemplares" headerText="Ejemplares"></s:GridColumn>
+				<s:GridColumn dataField="premio" headerText="Premio"></s:GridColumn>
+			</s:ArrayList>
+		</s:columns>
+	</s:DataGrid>
+	<s:Button id="btnCerrar" x="736" y="-26" label="Cerrar"
+			  x.paso1="734" y.paso1="-28" height.paso1="25"/>
+</s:Panel>

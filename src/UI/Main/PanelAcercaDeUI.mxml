@@ -1,0 +1,61 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+						xmlns:s="library://ns.adobe.com/flex/spark"
+						xmlns:mx="library://ns.adobe.com/flex/mx"
+						xmlns:layout="layout.*"
+						width="469" height="336" backgroundColor="#F9EAD2"
+						creationComplete="titlewindow1_creationCompleteHandler(event)"
+						fontFamily="Verdana" xmlns:shared="UI.shared.*">
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import AUI.AUpdateGUI;
+			
+			import mx.core.FlexGlobals;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+			protected function titlewindow1_creationCompleteHandler(event:FlexEvent):void {
+				versionLabel.text = HIPICO.flags.version;
+				versionLabel.setStyle("textAlign","right");
+				versionLabel.percentWidth = 100;
+				
+				var so:SharedObject = SharedObject.getLocal("hipico");
+				dbUri.text = "Base de datos: "+so.data.carpetaBD;
+				so.close();
+				so=null;
+			}
+			protected function linkbutton1_clickHandler(event:MouseEvent):void {
+				navigateToURL(new URLRequest("http://www.sistemasrequena.com"));
+			}
+			
+			protected function btnAutoUpdate_clickHandler(event:MouseEvent):void {
+				var au:AUpdateGUI = new AUpdateGUI(File.applicationDirectory.resolvePath("Hipico.exe"));
+				au.url = 'https://dl.dropboxusercontent.com/u/47924956/Hipico/'+NativeApplication.nativeApplication.applicationID;
+				au.autoClose=true;
+				PopUpManager.addPopUp(au,FlexGlobals.topLevelApplication as DisplayObject,true);
+				PopUpManager.centerPopUp(au);
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%"><s:stroke><s:SolidColorStroke color="0xCCCCCC"/></s:stroke></s:Rect>
+	<s:Rect width="100%" height="242"><s:fill><s:SolidColor color="0xffffff"/></s:fill></s:Rect>
+	<s:Rect x="0" y="240" width="100%" height="2"><s:fill><s:SolidColor color="0" alpha=".8"/></s:fill></s:Rect>
+	<s:Image y="31" width="133" height="173" horizontalCenter="-141" smooth="true" source="images/logo.jpg"/>
+	<s:Button id="btnUpdate0" x="10" y="271" width="449" label="Actualización Automática"
+			  click="btnAutoUpdate_clickHandler(event)" icon="images/cloud.png"
+			  styleName="verJugadas_top"/>
+	<s:FormItem right="0" bottom="0" width="202" height="29" label="Versión:">
+		<s:Label id="versionLabel" width="115" text="00.00.000" textAlign="right"/>
+	</s:FormItem>
+	<s:SkinnableContainer x="185" y="9" width="280" height="219" backgroundAlpha="0.5" backgroundColor="#FF9B4A" fontFamily="Verdana" fontSize="16">
+		<s:Label x="5" y="4" fontStyle="normal" fontWeight="bold" text="Contacto:"/>
+		<s:Label x="10" y="50" text="TSU Rubén Requena&#xd;&#xd;0414 997 0167&#x9;&#xd;0416 585 6838&#x9;&#xd;rubnrequena@gmail.com"/>
+		<mx:LinkButton x="0" y="185" width="280" label="www.sistemasrequena.com" click="linkbutton1_clickHandler(event)"/>
+	</s:SkinnableContainer>
+	<s:Label id="dbUri" x="10" y="250" width="450" maxDisplayedLines="1" text="BASE DE DATOS"/>
+	<s:Button x="10" y="10" label="Atras" styleName="verJugadas_top" id="btnAtras"/>
+</s:SkinnableContainer>

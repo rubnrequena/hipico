@@ -1,0 +1,113 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+					  xmlns:s="library://ns.adobe.com/flex/spark"
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  xmlns:Reporte="UI.Reporte.*" width="100%" height="100%"
+					  backgroundAlpha="0.8" backgroundColor="#000000">
+	
+	<fx:Script>
+		<![CDATA[
+			import Page.MultiPage;
+			import Page.com.PrintGridColumns;
+			
+			import flash.globalization.DateTimeStyle;
+			
+			import flashx.textLayout.formats.TextAlign;
+			
+			import mx.collections.ArrayList;
+			import mx.core.IVisualElementContainer;
+			import mx.events.FlexEvent;
+			
+			import spark.formatters.DateTimeFormatter;
+			import spark.formatters.NumberFormatter;
+			protected function btnCerrar_clickHandler(event:MouseEvent):void {
+				btnCerrar.removeEventListener(MouseEvent.CLICK,btnCerrar_clickHandler);
+				btnImprimir.removeEventListener(MouseEvent.CLICK,btnImprimir_clickHandler);
+				stage.removeEventListener(KeyboardEvent.KEY_UP,onkeyUp_Handler);
+				(parent as IVisualElementContainer).removeElement(this);
+			}
+			
+			public function set reporte (value:Array):void {
+				reporte_list.dataProvider = new ArrayList(value);
+				var o:Object = new Object; var j:Number=0; var p:Number=0; var len:int = value.length;
+				for (var i:int = 0; i < len; i++) {
+					j += value[i].jugado;
+					p += value[i].premios;
+				}
+				o.desc = ""; o.jugado = j; o.premios = p;
+				h.data = o;
+			}
+			private var _title:String;
+			public function set title(value:String):void {
+				_title = value.split("CENTRO HIPICO").join("C.H.");
+			}
+			public function get title ():String { return _title; }
+			
+			private var nf:NumberFormatter;
+			protected function panel1_creationCompleteHandler(event:FlexEvent):void {
+				btnCerrar.addEventListener(MouseEvent.CLICK,btnCerrar_clickHandler);
+				btnImprimir.addEventListener(MouseEvent.CLICK,btnImprimir_clickHandler);
+				
+				nf = new NumberFormatter;
+				nf.fractionalDigits = 2;
+				
+				panel.title = _title;
+				
+				stage.addEventListener(KeyboardEvent.KEY_UP,onkeyUp_Handler);
+			}
+			protected function onkeyUp_Handler(event:KeyboardEvent):void {
+				if (event.keyCode==Keyboard.ESCAPE) {
+					btnCerrar_clickHandler(new MouseEvent(MouseEvent.CLICK));
+				}
+			}
+			protected function btnImprimir_clickHandler(event:MouseEvent):void {
+				var df:DateTimeFormatter = new DateTimeFormatter;
+				df.setStyle("locale","es_VE");
+				df.dateStyle = DateTimeStyle.LONG;
+				df.timeStyle = DateTimeStyle.LONG;
+				
+				var columnas:Vector.<PrintGridColumns> = new Vector.<PrintGridColumns>;
+				columnas.push(new PrintGridColumns("desc","Descripción",-100));
+				columnas.push(new PrintGridColumns("jugado","Jugado",100,TextAlign.RIGHT));
+				columnas.push(new PrintGridColumns("premios","Premios",100,TextAlign.RIGHT));
+				columnas.push(new PrintGridColumns("balance","Balance",100,TextAlign.RIGHT));
+				var t:Array = title.split(" | ");
+				
+				var i:int; var len:int; var j:Number=0; var p:Number=0;
+				var datos:Array = reporte_list.dataProvider.toArray();
+				len = datos.length;
+				for (i = 0; i < len; i++) {
+					j += datos[i].jugado; p += datos[i].premios;
+					datos[i].balance = nf.format(datos[i].jugado - datos[i].premios);
+					datos[i].premios = nf.format(datos[i].premios);
+					datos[i].jugado = nf.format(datos[i].jugado);
+				}
+				datos.push({jugado:nf.format(j),premios:nf.format(p),balance:nf.format(j-p)});
+				
+				var pj:PrintJob = new PrintJob;
+				if (pj.start()) {
+					var pr:MultiPage = new MultiPage(pj.printableArea);
+					pr.pushLine("REPORTE HIPICO",TextAlign.CENTER,new TextFormat("Verdana",26,null,null,null,null,null,null,"center"));
+					pr.pushLine(df.format(new Date).toUpperCase(),TextAlign.CENTER);
+					for (i = 0; i < t.length; i++) {
+						pr.pushLine(t[i]);
+					}
+					pr.pushLine(" ");
+					pr.pushGrid(datos,columnas,pr.defaultFormat);
+				}
+				pr.sendPages(pj);
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Panel id="panel" width="700" height="400" chromeColor="#54795c" creationComplete="panel1_creationCompleteHandler(event)" fontFamily="Verdana" horizontalCenter="0" verticalCenter="0">
+		<s:Button right="5" top="-26" label="Cerrar" color="0xFFFFFF" id="btnCerrar"/>
+		<s:Button right="70" top="-26" label="Imprimir" chromeColor="#3B5340" id="btnImprimir" color="0xFFFFFF"/>
+		<Reporte:ReporteDetalleItem width="100%" id="h" />
+		<s:List id="reporte_list" y="24" width="100%" height="100%" itemRenderer="UI.Reporte.ReporteDetalleItem"/>
+	</s:Panel>
+</s:SkinnableContainer>

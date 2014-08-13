@@ -1,0 +1,99 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx" close="parent.removeChild(this)"
+			   width="800" height="500" title="Tablas" creationComplete="titlewindow1_creationCompleteHandler(event)"
+			   fontFamily="Verdana" fontSize="16" chromeColor="#54795c">
+	<fx:Script>
+		<![CDATA[
+			import VOs.BancaTabla;
+			
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+			import spark.components.Button;
+			import spark.components.Label;
+			import spark.components.gridClasses.GridColumn;
+			
+			private const EJEMPLAR_WIDTH:int = 200;
+			private const COLS_WIDTH:int=80;
+			
+			private var _tablas:Vector.<BancaTabla>;
+			private var _ejemplares:Array;
+			private var columnas:ArrayList;
+			public function set tablasBancas (tablas:Array):void {
+				var btn:Button; var lbl:Label;
+				_tablas = new Vector.<BancaTabla>(); var tabla:BancaTabla;
+				columnas = new ArrayList; var columna:GridColumn = new GridColumn;
+				columna.dataField = "ejemplar";
+				columna.headerText = "Ejemplar";
+				columna.width = EJEMPLAR_WIDTH;
+				columnas.addItem(columna);
+				var i:int;
+				for (i = 0; i < tablas.length; i++) {
+					tabla = new BancaTabla;
+					tabla.fromObject(tablas[i]);
+					_tablas.push(tabla);
+					columna = new GridColumn;
+					columna.headerText = tabla.paga.toString();
+					columna.dataField = tabla.banca+tabla.paga;
+					columna.width = COLS_WIDTH;
+					columnas.addItem(columna);
+					btn = new Button;
+					btn.label = tabla.paga.toString();
+					btn.width = COLS_WIDTH;
+					//btn.toolTip = tabla.banca+": "+tabla.paga;
+					btn.x = (COLS_WIDTH*i)+EJEMPLAR_WIDTH;
+					btn.bottom = 403;
+					btn.addEventListener(MouseEvent.CLICK,btnSelectTabla_click,false,0,true);
+					btn.name = i.toString();
+					cont.addElement(btn);
+				}
+				for (i = 0; i < tablas.length/2; i++) {
+					lbl = new Label;
+					lbl.text = "Banca "+(i+1);
+					lbl.width = COLS_WIDTH*2;
+					lbl.x = ((COLS_WIDTH*2)*i)+EJEMPLAR_WIDTH;
+					lbl.y = 5;
+					lbl.setStyle("textAlign","center");
+					lbl.setStyle("color","#ffffff");
+					cont.addElement(lbl);
+				}
+			}
+			public function set ejemplares(lista:Array):void { _ejemplares = lista; }
+			protected function titlewindow1_creationCompleteHandler(event:FlexEvent):void {
+				var data:ArrayList = new ArrayList; var tbl:Object;
+				for (var i:int = 0; i < _ejemplares.length; i++) {
+					tbl = new Object;
+					tbl.ejemplar = _ejemplares[i].Nombre;
+					for (var j:int = 0; j < _tablas.length; j++) {
+						tbl[_tablas[j].banca+_tablas[j].paga] = _tablas[j].tabla[i].Monto;
+					}
+					data.addItem(tbl);
+				}
+				datagrid.columns = columnas;
+				datagrid.dataProvider = data;
+				datagrid.width = EJEMPLAR_WIDTH+(COLS_WIDTH*_tablas.length)+2;
+			}
+			
+			protected function btnSelectTabla_click(event:MouseEvent):void {
+				var indice:int = int((event.currentTarget as Button).name);
+				dispatchEvent(new ListaTablas_SelectTabla(ListaTablas_SelectTabla.SELECT_TABLA,_tablas[indice].tabla,_tablas[indice].banca));
+				PopUpManager.removePopUp(this);
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Image source="images/iconos2/bg3.jpg" width="100%" height="100%" x="0" y="0" scaleMode="stretch" smooth="true"/>
+	<s:Scroller x="0" bottom="0" width="798" top="0">
+		<s:Group id="cont">
+			<s:DataGrid id="datagrid" x="0" top="67" bottom="0" contentBackgroundColor="#F9EAD2"
+						requestedRowCount="4">
+			</s:DataGrid>
+		</s:Group>
+	</s:Scroller>
+</s:TitleWindow>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+						xmlns:s="library://ns.adobe.com/flex/spark"
+						xmlns:mx="library://ns.adobe.com/flex/mx"
+						xmlns:layout="layout.*"
+						xmlns:UI="UI.*"
+						width="420" fontFamily="Verdana" height="300">
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="agregar" enterState="state1_enterStateHandler(event)"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import Common.Misc;
+			
+			import libVOs.Tablas;
+			
+			import mx.collections.ArrayCollection;
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.events.CalendarLayoutChangeEvent;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			
+			private var carreras:Array;
+			protected function btnOK_clickHandler(event:MouseEvent):void {
+				if (carreras.length>0) {
+					var mId:int = Global.macuare.macuares.insertar({fecha:date_fecha.fechaSelecionada,hipodromo:dd_hipodromos.selectedItem.Hipodromo});
+					var macuares:Array = new Array;
+					if (chk_macuare.selected)
+						macuares.push({macuareId:mId,descripcion:"Macuare",paga:macuarePaga.text,inicio:macuareInicia.text,abierta:true});
+					if (chk_macuarito.selected)
+						macuares.push({macuareId:mId,descripcion:"Macuarito",paga:macuaritoPaga.text,inicio:macuaritoInicia.text,abierta:true});
+					Global.macuare.carreras.insertar(macuares);
+					Alert.show("Macuare Creado","",4,this);
+				} else {
+					Global.noticia.mostrarNoticiaRapida("No hay carreras asignadas");
+				}
+			}
+			protected function chk_macuare_changeHandler(event:Event):void {
+				if (chk_macuare.selected) 
+					macuareInicia.text = (dd_hipodromos.selectedItem.Carrera - 6).toString();
+			}
+			
+			protected function chk_macuarito_changeHandler(event:Event):void {
+				if (chk_macuarito.selected)
+					macuaritoInicia.text = (dd_hipodromos.selectedItem.Carrera - 5).toString();
+			}
+			
+			private function seleccionarCarrera():void {
+				reset();
+				carreras = Global.banca.carreras.leerNumCarreras(date_fecha.fechaSelecionada);
+				if (carreras) {
+					dd_hipodromos.dataProvider = new ArrayList(carreras);
+					var mac:Array = Global.macuare.macuares.leerMacuare(date_fecha.fechaSelecionada,carreras[0].Hipodromo);
+					if (mac) {
+						Alert.show("Ya se encuentra un macuare o macuarito registrado para esta fecha e hipodromo, ¿desea eliminar los datos anteriores?","",1|2,this,function(cerrar:CloseEvent):void {
+							if (cerrar.detail==Alert.YES) {
+								Global.macuare.macuares.eliminar(int(mac[0].macuareId));
+								btnOK.enabled=true;
+								reset();
+							} else {
+								for (var i:int = 0; i < mac.length; i++) {
+									if (mac[i].descripcion=="Macuare") {
+										chk_macuare.selected=true;
+										macuareInicia.text=mac[i].inicio;
+										macuarePaga.text = mac[i].paga;
+									} else {
+										chk_macuarito.selected=true;
+										macuaritoInicia.text = mac[i].inicio;
+										macuaritoPaga.text = mac[i].paga;
+									}
+								}
+								btnOK.enabled=false;
+							}
+						});
+					} else {
+						btnOK.enabled=true;
+					}
+				} else {
+					dd_hipodromos.dataProvider=null;
+					btnOK.enabled=false;
+				}
+			}
+			
+			private function reset():void {
+				chk_macuare.selected=false;chk_macuarito.selected=false;
+				macuaritoInicia.text=""; macuaritoPaga.text="";
+				macuareInicia.text=""; macuarePaga.text="";
+			}
+			
+			protected function btnAgregar_clickHandler(event:MouseEvent):void {
+				currentState="agregar";
+			}
+			
+			protected function state1_enterStateHandler(event:FlexEvent):void {
+				seleccionarCarrera();
+				date_fecha.addEventListener(CalendarLayoutChangeEvent.CHANGE,function ():void {
+					seleccionarCarrera();
+				});
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:SolidColor color="0xffffff" alpha=".9"/>
+		</s:fill>
+	</s:Rect>
+	<s:VGroup id="menu" width="420" includeIn="State1" paddingLeft="5" paddingRight="5" paddingTop="5" >
+		<s:Button width="100%" height="50" label="Monitorear" styleName="verJugadas_top" name="monitor"/>
+		<s:Button id="btnAgregar" width="100%" height="50" label="Agregar" styleName="verJugadas_top" name="nuevo"/>
+		<s:Button id="btnPremiar" width="100%" height="50" label="Premiar" styleName="verJugadas_top" name="premios"/>	
+	</s:VGroup>
+	
+	
+	<s:Group includeIn="agregar" width="100%">
+		<s:Form width="100%" height="299" fontSize="20">
+			<s:FormItem width="386" label="Fecha:">
+				<UI:myDate id="date_fecha" width="224" selectedDate="{new Date}"/>
+			</s:FormItem>
+			<s:FormItem width="391" label="Hipodromo:">
+				<s:DropDownList id="dd_hipodromos" width="223" labelField="Hipodromo"
+								requireSelection="true"/>
+			</s:FormItem>
+			<s:HGroup>
+				<s:SkinnableContainer skinClass="skins.sombraContainer" width="200">
+					<s:CheckBox id="chk_macuare" x="5" width="195" label="Macuare"
+								change="chk_macuare_changeHandler(event)" selected="false"/>
+					<s:Form x="0" y="21" enabled="{chk_macuare.selected}">
+						<s:FormItem x="0" y="28" height="21" label="Paga:">
+							<s:TextInput x="73" y="33" width="75" id="macuarePaga"/>
+						</s:FormItem>
+						<s:FormItem x="0" y="78" label="Inicio:">
+							<s:TextInput x="73" y="60" width="75" id="macuareInicia"/>				
+						</s:FormItem>
+					</s:Form>
+				</s:SkinnableContainer>
+				<s:SkinnableContainer skinClass="skins.sombraContainer" width="200">
+					<s:CheckBox id="chk_macuarito" x="5" width="195" label="Macuarito"
+								change="chk_macuarito_changeHandler(event)" selected="false"/>
+					<s:Form x="0" y="21" enabled="{chk_macuarito.selected}">
+						<s:FormItem x="0" y="28" height="21" label="Paga:">
+							<s:TextInput x="73" y="33" width="75" id="macuaritoPaga"/>
+						</s:FormItem>
+						<s:FormItem x="0" y="78" label="Inicio:">
+							<s:TextInput x="73" y="60" width="75" id="macuaritoInicia"/>				
+						</s:FormItem>
+					</s:Form>
+				</s:SkinnableContainer>
+			</s:HGroup>
+		</s:Form>
+	</s:Group>
+	<s:Button id="btnOK" includeIn="agregar" x="5" bottom="10" width="254" height="37"
+			  label="Aceptar" click="btnOK_clickHandler(event)" styleName="verJugadas_top"/>
+	<s:Button id="btnAtras" height="37" label="Atras"
+			  x.agregar="266" bottom.agregar="10" width.agregar="149"
+			  x.State1="5" y.State1="253" width.State1="410"/>
+</s:Group>

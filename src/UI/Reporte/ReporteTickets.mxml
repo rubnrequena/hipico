@@ -1,0 +1,145 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vistas:VistaUI xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:verJugadas="Comps.verJugadas.*"
+		 width="100%" height="100%" autoClose="true"
+		 currentState="inicio" creationComplete="group1_creationCompleteHandler(event)" xmlns:vistas="vistas.*">
+	
+	<fx:Script>
+		<![CDATA[
+			import Common.Misc;
+			
+			import libVOs.infoCarrera;
+			
+			import mx.collections.ArrayList;
+			import mx.core.IVisualElementContainer;
+			import mx.events.FlexEvent;
+			
+			import spark.events.IndexChangeEvent;
+			
+			private var _fhc:String;
+
+			private var _tickets:Array;
+			protected function group1_creationCompleteHandler(event:FlexEvent):void {
+				carrera.selCarrera.add(carrera_changeHandler);
+				
+				closeArea.addEventListener(MouseEvent.CLICK,closeArea_onClick);
+			}
+			
+			protected function carrera_changeHandler (event:infoCarrera):void {
+				currentState="State1";
+				_fhc = event.FHC;
+			}
+			
+			protected function group2_creationCompleteHandler(event:FlexEvent):void {
+				bancas.dataProvider = new ArrayList(Global.banca.bancas.bancas);
+			}
+			protected function taquillas_changeHandler(event:IndexChangeEvent):void {
+				if (taquillas.selectedIndex>0) {
+					tickets.dataProvider = new ArrayList(_tickets.filter(filtrarTaquillas));
+				} else {
+					tickets.dataProvider = new ArrayList(_tickets);
+				}
+				calcularTotal();
+			}
+			
+			private function filtrarTaquillas(item:*,index:int,array:Array):Boolean {
+				return item.Taquilla==taquillas.selectedItem.Taquilla?true:false;
+			}
+			private function calcularTotal():void {
+				var t:Number=0;
+				for (var i:int = 0; i < tickets.dataProvider.length; i++) {
+					if (tickets.dataProvider.getItemAt(i).pago==false)
+						t += tickets.dataProvider.getItemAt(i).Premio;
+				}
+				total.text = "Premios sin cobrar: "+t.toFixed(2);
+			}
+			protected function closeArea_onClick(event:MouseEvent):void { popBack(); }
+			
+			protected function btnBuscar_clickHandler(event:MouseEvent):void {
+				_tickets = new Array; var t:Array;
+				if (ganador.selected) {
+					//t = Global.ganador.sql('SELECT "Ganador" Tipo, Premiados.Taquilla, Premiados.VentaID, Premiados.Hora, Premiados.Numero, Premiados.Nombre, Premiados.Monto, (Premiados.Monto/'+Global.banca.config.dividendoGanador+' * Ganadores.Paga) Premio, Premiados.pago FROM Premiados JOIN Ganadores ON Ganadores.FHC = Premiados.FHC AND Ganadores.Numero = Premiados.Numero WHERE Premiados.FHC = "'+_fhc+'" AND Premiados.BancaID = '+bancas.selectedItem.ID+' GROUP BY VentaID').data;
+					t = Global.ganador.premios.premiados(_fhc,bancas.selectedItem.ID);
+					if (t) _tickets = _tickets.concat(t); 
+				}
+				if (tablas.selected) {
+					//t = Global.tablas.sql('SELECT "Tabla" Tipo, Premiados.Taquilla, Premiados.VentaID, Premiados.Hora, Premiados.Numero, Premiados.Nombre, Premiados.Cantidad, Premiados.Monto, Tablas_Padre.Paga, (Premiados.Cantidad * Tablas_Padre.Paga) Premio, Premiados.pago FROM Premiados JOIN Tablas_Padre ON Premiados.FHC = Tablas_Padre.FHC WHERE Premiados.FHC = "'+_fhc+'" AND Premiados.BancaID = '+bancas.selectedItem.ID+' GROUP BY VentaID').data;
+					t = Global.tablas.premios.premiados(_fhc,bancas.selectedItem.ID);
+					var g:Array = Global.tablas.ganadores.leer({FHC:_fhc,BancaID:bancas.selectedItem.ID});
+					var e:Number=1; var len:int = t?t.length:0;
+					if (g) {
+						e = g.length==1?1:0.5;
+					}
+					for (var i:int = 0; i < len; i++) {
+						t[i].Premio = Number(t[i].Premio)*e; 
+					}
+					if (t) _tickets = _tickets.concat(t);
+				}
+					
+				if (_tickets.length>0) {
+					tickets.dataProvider = new ArrayList(_tickets);
+					calcularTotal();
+					
+					var _taquillas:Array = new Array;
+					var _tq:Array;
+					if (ganador.selected) {
+						_tq = Global.ganador.sql('SELECT Taquilla FROM Premiados WHERE FHC = "'+_fhc+'" AND BancaID = '+bancas.selectedItem.ID+' AND pago = false GROUP BY Taquilla').data;
+						if (_tq) _taquillas = _taquillas.concat(_tq); 
+					}
+					if (tablas.selected) {
+						_tq = Global.tablas.sql('SELECT Taquilla FROM Premiados WHERE FHC = "'+_fhc+'" AND BancaID = '+bancas.selectedItem.ID+' AND pago = false GROUP BY Taquilla').data;
+						if (_tq) _taquillas = _taquillas.concat(_tq);
+					}
+					
+					_taquillas = Misc.agruparArray(_taquillas,"Taquilla");
+					_taquillas.unshift({Taquilla:"TODAS"});
+					taquillas.dataProvider = new ArrayList(_taquillas);
+					taquillas.selectedIndex=0;
+				} else {
+					tickets.dataProvider = new ArrayList();
+					taquillas.dataProvider = new ArrayList();
+				}
+			}
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				currentState="inicio";
+				tickets.dataProvider = null;
+				taquillas.dataProvider = null;
+				ganador.selected=true;
+				tablas.selected=true;
+			}
+			
+		]]>
+	</fx:Script>
+	<vistas:states>
+		<s:State name="State1"/>
+		<s:State name="inicio"/>
+	</vistas:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:SkinnableContainer width="100%" height="100%" backgroundAlpha=".7" backgroundColor="0" id="closeArea" buttonMode="true">
+		
+	</s:SkinnableContainer>
+	<s:Panel chromeColor="#54795c" backgroundColor="#F9EAD2" left="40" right="40" top="40" bottom="40" title="Reporte Tickets" fontFamily="Verdana" fontSize="16">
+		<verJugadas:abrirCarrera includeIn="inicio" x="0" y="0" id="carrera">
+		</verJugadas:abrirCarrera>
+		<s:Group includeIn="State1" left="0" right="0" top="0" bottom="0" creationComplete="group2_creationCompleteHandler(event)">
+			<s:List id="tickets" left="10" right="10" top="53" bottom="32" itemRenderer="UI.Reporte.IRReporteTickets" skinClass="UI.Reporte.skins.ReporteTicketsSkin"></s:List>
+			<s:Label x="10" y="9" text="Bancas:"/>
+			<s:Label id="total" right="10" bottom="10" paddingRight="3" textAlign="right"/>
+			<s:DropDownList id="bancas" x="10" y="24" width="200" labelField="Nombre" requireSelection="true"/>
+			<s:DropDownList id="taquillas" x="218" y="24" width="200" change="taquillas_changeHandler(event)" labelField="Taquilla" requireSelection="true"/>
+			<s:CheckBox id="ganador" x="430" y="4" label="Ganador" selected="true"/>
+			<s:CheckBox id="tablas" x="430" y="24" label="Tablas" selected="true"/>
+			<s:Label x="219" y="9" text="Taquillas"/>
+			<s:Button id="btnBuscar" x="525" y="5" height="40" label="Buscar" click="btnBuscar_clickHandler(event)" styleName="verJugadas_top"/>
+		</s:Group>
+		<s:Label includeIn="State1" y="-22" right="10" text="Presione ESC para cerrar"/>
+		<s:Button includeIn="State1" y="-27" right="220" label="Seleccionar Carrera" chromeColor="#305838"
+				  click="button1_clickHandler(event)" color="#FFFFFF"/>
+	</s:Panel>
+</vistas:VistaUI>

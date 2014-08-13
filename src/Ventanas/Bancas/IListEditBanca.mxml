@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%" autoDrawBackground="false" fontFamily="Verdana" fontSize="20"
+				addedToStage="itemrenderer1_addedToStageHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import Clases.Banca.VOBanca;
+			
+			import Common.Misc;
+			
+			import appkit.responders.NResponder;
+			
+			import flash.utils.setTimeout;
+			override public function set data(value:Object):void {
+				super.data = value;
+				if (value) {
+					banca.text = Misc.fillZeros(value.ID,2)+". "+value.Nombre;
+					tablas_multiplo.text = value.tablas_multiplo.toString();
+					tablas_cantidad.text = value.tablas_cantidad.toString();
+					tablas_paga.text = value.tablas_paga.toString();
+					remate_porcentaje.text = value.remate_porcentaje.toString();
+					macuare_tope.text = value.macuare_tope.toString();
+				}
+				bgColor.alpha = itemIndex%2==0?0:.3;
+			}
+			
+			protected function itemrenderer1_addedToStageHandler(event:Event):void {
+				NResponder.addNative(btnGuardar,MouseEvent.CLICK,btnGuardar_click);
+				NResponder.addNative(this,Event.REMOVED_FROM_STAGE,onRemoved,1);
+			}
+			private function btnGuardar_click(e:MouseEvent):void {
+				(data as VOBanca).mod("tablas_multiplo",tablas_multiplo.text);
+				(data as VOBanca).mod("tablas_cantidad",tablas_cantidad.text);
+				(data as VOBanca).mod("tablas_paga",tablas_paga.text);
+				(data as VOBanca).mod("remate_porcentaje",remate_porcentaje.text);
+				(data as VOBanca).mod("macuare_tope",macuare_tope.text);
+				bgColor.alpha = 1;
+				bgColor.color = 0x7d9e63;
+				banca.text = "Guardando...";
+				setTimeout(returnColor,300);
+			}
+			private function returnColor():void {
+				bgColor.color = 0xffffff;
+				bgColor.alpha = itemIndex%2==0?0:.3;
+				banca.text = Misc.fillZeros(data.ID,2)+". "+data.Nombre;
+			}
+			private function onRemoved(e:Event):void {
+				NResponder.remove(MouseEvent.CLICK,btnGuardar_click,btnGuardar);
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="30" id="bg">
+		<s:fill>
+			<s:SolidColor color="0xffffff" alpha=".3" id="bgColor"/>
+		</s:fill>
+	</s:Rect>
+	<s:HGroup width="100%" gap="3" verticalAlign="middle">
+		<s:Image source="images/accept32.png" buttonMode="true" id="btnGuardar"/>
+		<s:Label color="#FFFFFF" paddingLeft="5" text="00" id="banca" maxDisplayedLines="1" width="100%"/>
+		<s:TextInput width="60" id="tablas_multiplo"/>
+		<s:TextInput width="60" id="tablas_cantidad"/>
+		<s:TextInput width="60" id="tablas_paga"/>
+		<s:Line width="0" height="30">
+			<s:stroke>
+				<s:SolidColorStroke color="0xffffff" alpha=".6"/>
+			</s:stroke>
+		</s:Line>
+		<s:TextInput width="60" id="remate_porcentaje"/>
+		<s:TextInput width="60" id="macuare_tope"/>
+	</s:HGroup>
+</s:ItemRenderer>

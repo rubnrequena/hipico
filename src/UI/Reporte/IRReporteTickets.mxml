@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="true" fontFamily="Verdana" fontSize="16">
+	
+	<fx:Script>
+		<![CDATA[
+			import Common.Misc;
+			override public function set data(value:Object):void {
+				super.data = value;
+				if (value) {
+					ventaid.text = Misc.fillZeros(value.VentaID,9);
+					hora.text = value.Hora;
+					
+					numero.text = Misc.fillZeros(value.Numero,2);
+					nombre.text = value.Nombre;
+					taquilla.text = value.Taquilla;
+					monto.text = Number(value.Monto).toFixed(2);
+					premio.text = Number(value.Premio).toFixed(2);
+					tipo.text = value.Tipo;
+					pago.text = value.pago?"Si":"No";
+					if (value.hasOwnProperty("Cantidad")) {
+						cantidad.text = value.Cantidad;
+					} else {
+						cantidad.text = "";
+					}
+					bg.color = value.pago?0xbeff8a:0xca7f7f;
+				}
+			}
+		]]>
+	</fx:Script>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace fb "http://ns.adobe.com/flashbuilder/2009";
+		.padding {
+			paddingBottom:3px;
+			paddingLeft:3px;
+			paddingRight:3px;
+			paddingTop:3px;
+		}
+	</fx:Style>
+	<s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:SolidColor id="bg" color="0xffffff"/>
+		</s:fill>
+	</s:Rect>
+	<s:HGroup width="100%" fontSize="14" verticalAlign="middle" gap="0">
+		<s:VGroup width="100" gap="1">
+			<s:Label text="000000000" id="ventaid" styleName="padding" paddingBottom="0" />
+			<s:Label id="hora" color="#414141" text="00:00:00 MM" styleName="padding" paddingTop="0"/>
+		</s:VGroup>
+		<s:Line width="0" height="100%"><s:stroke><s:SolidColorStroke color="0" alpha=".4"/></s:stroke></s:Line>
+		<s:Label id="numero" text="00" styleName="padding" width="25"/>
+		<s:Line width="0" height="100%"><s:stroke><s:SolidColorStroke color="0" alpha=".4"/></s:stroke></s:Line>
+		<s:Label id="nombre" text="Nombre" styleName="padding" width="100"/>
+		<s:Line width="0" height="100%"><s:stroke><s:SolidColorStroke color="0" alpha=".4"/></s:stroke></s:Line>
+		<s:Label id="taquilla" width="100%" text="Taquilla" styleName="padding"/>
+		<s:Line width="0" height="100%"><s:stroke><s:SolidColorStroke color="0" alpha=".4"/></s:stroke></s:Line>
+		<s:Label id="tipo" width="70" text="Tipo" styleName="padding"/>
+		<s:Line width="0" height="100%"><s:stroke><s:SolidColorStroke color="0" alpha=".4"/></s:stroke></s:Line>
+		<s:Label id="pago" text="Pago" width="40" styleName="padding"/>
+		<s:Line width="0" height="100%"><s:stroke><s:SolidColorStroke color="0" alpha=".4"/></s:stroke></s:Line>
+		<s:Label id="monto" width="75" styleName="padding" text="12345.67" textAlign="right"/>
+		<s:Line width="0" height="100%"><s:stroke><s:SolidColorStroke color="0" alpha=".4"/></s:stroke></s:Line>
+		<s:Label id="cantidad" width="75" text="999" textAlign="right" styleName="padding"/>
+		<s:Line width="0" height="100%"><s:stroke><s:SolidColorStroke color="0" alpha=".4"/></s:stroke></s:Line>
+		<s:Label id="premio" width="75" text="12345.67" textAlign="right" styleName="padding"/>
+	</s:HGroup>
+	<s:Line width="100%" height="0" bottom="0"><s:stroke><s:SolidColorStroke color="0" alpha=".4"/></s:stroke></s:Line>
+</s:ItemRenderer>

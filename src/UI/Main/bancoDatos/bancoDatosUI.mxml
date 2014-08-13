@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+					  xmlns:s="library://ns.adobe.com/flex/spark"
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  width="350" height="300" backgroundColor="0xffffff"
+					  fontFamily="Verdana">
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="ask"/>
+		<s:State name="reiniciar"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Group width="350" height="300">
+		<s:Button id="btnCerrar" x="288" y="5" label="Cerrar"/>
+		<s:Label x="3" y="3" height="21" fontStyle="italic" text="BANCO DE DATOS" verticalAlign="middle"/>
+		<s:List id="bancoDatos_list" x="10" y="32" width="331" height="258" itemRenderer="UI.Main.bancoDatos.itemBancoDatos"/>
+	</s:Group>
+	<s:Rect width="350" height="300" includeIn="ask,reiniciar">
+		<s:fill><s:SolidColor color="0x000000" alpha=".8"/></s:fill>
+	</s:Rect>
+	<s:SkinnableContainer includeIn="ask" width="260" height="68" backgroundColor="0xffffff" horizontalCenter="0" verticalCenter="0" id="askGroup">
+		<s:Label x="3" y="3" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" text="¿Seguro desea reiniciar la base de datos?"/>
+		<s:Button x="0" y="30" width="130" height="38" label="Confirmar" chromeColor="#70B2EE" name="confirmar"/>
+		<s:Button x="130" y="30" width="130" height="38" label="Cancelar" name="cancelar"/>
+	</s:SkinnableContainer>
+	<s:SkinnableContainer includeIn="reiniciar" width="260" height="68" backgroundColor="0xffffff" horizontalCenter="0" verticalCenter="0">
+		<s:Label x="3" y="3" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5" text="El sistema debe ser reiniciado..."/>
+		<s:Button x="0" y="30" height="38" label="Confirmar" chromeColor="#70B2EE" name="confirmar" width="260" id="btnOK"/>
+	</s:SkinnableContainer>
+</s:SkinnableContainer>

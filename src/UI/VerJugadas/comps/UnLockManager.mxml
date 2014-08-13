@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" fontFamily="Verdana" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="70" creationComplete="group1_creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="statusChange", type="UI.VerJugadas.comps.CarreraStatusEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import Clases.Banca.VOBanca;
+			
+			import mx.events.FlexEvent;
+			
+			public static const GANADOR:String = "ganador";
+			public static const TABLA:String = "tabla";
+			public static const GENERAL:String = "general";
+			
+			private const _lock:String="images/lock32.png";
+			private const _unlock:String="images/unlock32.png";
+			
+			private var _general:Boolean;
+			
+			private var _banca:VOBanca;
+			
+			public function set banca(value:VOBanca):void {
+				_banca = value;
+				lblbanca.text = value.ID+": "+value.Nombre;
+				cn_conectadas.text = value.numTaquillas.toString();
+				cn_ganadores.text = value.numGanadores.toString();
+				cn_tablas.text = value.numTablas.toString();
+			}
+
+			public function get bancaID ():int { return _banca.ID; }
+			
+			private var _ganador:Boolean;
+			public function get ganador ():Boolean { return _ganador; }
+			public function set ganador (value:Boolean):void {
+				lockGanador.setStyle("icon",getIcon(value));
+				_ganador = value;
+				if (value) general = value;	
+				dispatchEvent(new CarreraStatusEvent(CarreraStatusEvent.STATUS_CHANGE,_banca.ID,null,_ganador,GANADOR));
+			}
+			
+			private var _tablas:Boolean;
+			public function get tablas ():Boolean { return _tablas; }
+			public function set tablas (value:Boolean):void {
+				lockTabla.setStyle("icon",getIcon(value));
+				_tablas = value;
+				if (value) general = value;
+				dispatchEvent(new CarreraStatusEvent(CarreraStatusEvent.STATUS_CHANGE,_banca.ID,null,_tablas,TABLA));
+			}
+			
+			public function set general (value:Boolean):void {
+				lockGeneral.setStyle("icon",getIcon(value));
+				_general = value;
+			}
+			protected function getIcon(status:Boolean):String {
+				return status?_unlock:_lock;
+			}
+			
+			protected function group1_creationCompleteHandler(event:FlexEvent):void {
+				lockGanador.addEventListener(MouseEvent.CLICK,lockGanador_clickHandler,false,0,true);
+				lockTabla.addEventListener(MouseEvent.CLICK,lockTablas_clickHandler,false,0,true);
+				lockGeneral.addEventListener(MouseEvent.CLICK,lockGeneral_clickHandler,false,0,true);
+			}
+			
+			protected function lockGanador_clickHandler(event:MouseEvent):void {
+				ganador = !_ganador;
+				general = _ganador==_tablas?_ganador:true;
+			}
+			protected function lockTablas_clickHandler(event:MouseEvent):void {
+				tablas = !_tablas;
+				general = _ganador==_tablas?_tablas:true;
+			}
+			
+			protected function lockGeneral_clickHandler(event:MouseEvent):void {
+				general = !_general;
+				ganador = _general;
+				tablas = _general;
+				dispatchEvent(new CarreraStatusEvent(CarreraStatusEvent.STATUS_CHANGE,_banca.ID,null,_general,GENERAL));
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Button styleName="verJugadas_top" width="64" height="70" icon="images/unlock32.png" id="lockGeneral"/>
+	
+	<s:Button styleName="verJugadas_top" id="lockGanador" x="64" y="0" width="35" height="35" icon="images/unlock32.png"/>
+	<s:Button styleName="verJugadas_top" id="lockTabla" x="64" y="35" width="35" height="35" icon="images/unlock32.png"/>
+	
+	<s:Label id="lblbanca" left="182" right="138" top="3" bottom="3" fontSize="24" text="Hipodromo"
+			 verticalAlign="middle"/>
+	<s:Label x="100" y="11" text="Ganador"/>
+	<s:Label x="100" y="43" text="Tabla"/>
+	<s:Form y="-11" right="0" width="140" height="81">
+		<s:FormItem label="Contectadas:" height="15">
+			<s:Label text="0" id="cn_conectadas"/>
+		</s:FormItem>
+		<s:FormItem label="Ganadores:" height="15">
+			<s:Label text="0" id="cn_ganadores"/>
+		</s:FormItem>
+		<s:FormItem label="Tablas:" height="15">
+			<s:Label text="0" id="cn_tablas"/>
+		</s:FormItem>
+	</s:Form>
+</s:SkinnableContainer>

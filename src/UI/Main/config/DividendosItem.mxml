@@ -1,0 +1,50 @@
+<?xml version="1.0"?>
+<!--
+  Created by Ruben on 25-03-2014.
+-->
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark" width="100%" fontSize="14">
+    <fx:Script><![CDATA[
+        override public function set data(value:Object):void {
+            super.data = value;
+            if (value) {
+                bancaIDLabel.text = Global.banca.bancas.bancaByID(value.bancaID).Nombre.split("CENTRO HIPICO ").join("");
+                hipodromoLabel.text = String(value.hipodromos).split(",").join(File.lineEnding);
+                topeLabel.text = "T: "+value.tope;
+                empateLabel.text = "E: +"+value.empate;
+
+                var o:Array = JSON.parse(value.rangos) as Array;
+                var f:String;
+                for (var i:int = 0; i < o.length; i++) {
+                    var rango:Object = o[i];
+                    f = String(rango.valor).split("-").join("+");
+                    (rangosGroup.getElementAt(i) as Label).text = "de "+rango.min+" a "+rango.max+" : "+f;
+                }
+
+            }
+        }
+        ]]></fx:Script>
+    <s:HGroup width="100%" paddingTop="3" paddingBottom="3" paddingRight="3" paddingLeft="3">
+        <s:VGroup width="150">
+            <s:Label id="bancaIDLabel" text="00" maxDisplayedLines="1" fontWeight="bold"/>
+            <s:Label id="hipodromoLabel" fontSize="12" text="HIPODROMO" maxDisplayedLines="3"/>
+        </s:VGroup>
+        <s:Line width="0" height="100%">
+            <s:stroke><s:SolidColorStroke color="0x000000" alpha=".4"/></s:stroke>
+        </s:Line>
+        <s:VGroup>
+            <s:Label id="topeLabel" text="00"/>
+            <s:Label id="empateLabel" text="00"/>
+        </s:VGroup>
+        <s:Line width="0" height="100%">
+            <s:stroke><s:SolidColorStroke color="0x000000" alpha=".4"/></s:stroke>
+        </s:Line>
+        <s:VGroup id="rangosGroup" width="180">
+            <s:Label id="rango1Label"/>
+            <s:Label id="rango2Label"/>
+            <s:Label id="rango3Label"/>
+        </s:VGroup>
+    </s:HGroup>
+    <s:Line width="100%" height="0" bottom="0">
+        <s:stroke><s:SolidColorStroke color="0x000000" alpha=".4"/></s:stroke>
+    </s:Line>
+</s:ItemRenderer>

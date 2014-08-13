@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="group2_creationCompleteHandler(event)"
+		 width="100%" height="29" fontSize="20" currentState="State1">
+	<s:states>
+		<s:State name="State1"/>
+		<s:State name="editar"/>
+	</s:states>
+	<fx:Declarations>
+		<fx:int id="tMonto"/>
+		<fx:String id="tHipo"/>
+		<fx:Boolean id="activo"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import Validacion.cValidar;
+			
+			import mx.core.IVisualElementContainer;
+			import mx.events.FlexEvent;	
+			private var p:gTope;
+			protected function topeMonto_click(event:MouseEvent):void
+			{
+				currentState = "editar";
+				topeEditarMonto.text = tMonto.toString();
+				topeEditarMonto.setFocus();
+			}
+			
+			protected function topeEditarMonto_keyUp(event:KeyboardEvent):void
+			{
+				event.stopPropagation();
+				if (event.keyCode==Keyboard.ESCAPE) {
+					currentState = "";
+				}
+			}
+			
+			protected function topeEditarMonto_enter(event:FlexEvent):void
+			{
+				if (cValidar.ValidarNumero([topeEditarMonto])) {
+					Global.ganador.topes.modificar({tope:int(topeEditarMonto.text)},{banca:p.bancaId,hipodromo:tHipo});
+					currentState = "";
+					tMonto = int(topeEditarMonto.text)
+				}
+			}
+			
+			protected function group2_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				topeMonto.addEventListener(MouseEvent.CLICK,topeMonto_click,false,0,true);
+				hipoLabel.addEventListener(MouseEvent.CLICK,removerTope,false,0,true);
+				chkActivo.addEventListener(Event.CHANGE,chkActivo_change,false,0,true);
+				chkActivo.selected = activo;
+				p = parent.parent as gTope;
+			}
+			
+			protected function topeEditarMonto_creationCompleteHandler(event:FlexEvent):void
+			{
+				// TODO Auto-generated method stub
+				topeEditarMonto.addEventListener(KeyboardEvent.KEY_UP,topeEditarMonto_keyUp,false,0,true);
+				topeEditarMonto.addEventListener(FlexEvent.ENTER,topeEditarMonto_enter,false,0,true);
+			}
+			
+			protected function removerTope(event:MouseEvent):void {
+				(parent as  IVisualElementContainer).removeElement(event.currentTarget.parent);
+				Global.ganador.topes.remover(p.bancaId,tHipo);
+				//Global.db.Eliminar("Topes",[{banca:p.bancaId,hipodromo:tHipo}],"AND");
+			}
+			
+			protected function chkActivo_change(event:Event):void {
+				Global.ganador.topes.modificar({activo:(event.currentTarget as CheckBox).selected},{banca:p.bancaId,hipodromo:tHipo});
+			}
+			
+		]]>
+	</fx:Script>
+	<s:CheckBox includeIn="State1" x="4" y="2" id="chkActivo"/>
+	<mx:LinkButton id="hipoLabel" x="21" label="{tHipo}" toolTip="Click para remover tope."
+				   verticalCenter="0"/>
+	<mx:LinkButton right="5" label="{tMonto}" verticalCenter="0" includeIn="State1" id="topeMonto" toolTip="Click para editar."/>
+	<s:TextInput right="0" width="90" includeIn="editar" id="topeEditarMonto" creationComplete="topeEditarMonto_creationCompleteHandler(event)"/>
+</s:Group>

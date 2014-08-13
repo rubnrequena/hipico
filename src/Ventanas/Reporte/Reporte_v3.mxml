@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vistas:VistaUI xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				xmlns:Reporte="Ventanas.Reporte.*"
+				xmlns:layout="layout.*"
+				xmlns:vistas="vistas.*"
+				xmlns:Reporte1="UI.Reporte.*"
+				width="100%" height="100%" autoClose="true" backgroundColor="#F9EAD2"
+				creationComplete="onCreateComplete(event)" fontFamily="Verdana">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script source="Reporte_v3_as.as"/>
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			import mx.events.FlexMouseEvent;
+			
+			protected function scrollview_mouseWheelChangingHandler(event:FlexMouseEvent):void {
+				event.delta = event.delta>0?1:-1;
+			}
+			
+			protected function listReporte_creationCompleteHandler(event:FlexEvent):void {
+				listReporte.scroller.addEventListener(FlexMouseEvent.MOUSE_WHEEL_CHANGING,scrollview_mouseWheelChangingHandler);
+			}
+		]]>
+	</fx:Script>
+	<s:Group left="10" right="10" top="55" bottom="0">
+		<s:HGroup height="20" right="0" fontFamily="Verdana" fontSize="20" textAlign="center">
+			<s:Label width="130" text="Jugado"/>
+			<s:Label width="130" text="Premios"/>
+			<s:Label width="130" text="Balance"/>
+		</s:HGroup>
+		<s:List id="listReporte" x="0" top="25" bottom="5" width="100%"
+				creationComplete="listReporte_creationCompleteHandler(event)"
+				itemRenderer="UI.Reporte.IReporteBanca">
+			
+		</s:List>
+	</s:Group>
+	<s:Button id="btnImprimir" x="191" y="44" height="30" label="Imprimir" icon="images/printer16.png" styleName="verJugadas_top"/>
+	<s:Button id="btnEstadisticas" x="291" y="44" height="30" label="Estadisticas Generales" icon="images/detalles.png" styleName="verJugadas_top"/>
+	<s:Button id="btnBuscar" x="101" y="44" height="30" label="Buscar" icon="images/zoom.png"
+			  styleName="verJugadas_top"/>
+	<s:Button x="10" y="44" width="83" height="30" label="Cerrar" chromeColor="#FF885F" id="btnCerrar"/>
+	<s:Label y="8" color="#696969" fontSize="30" horizontalCenter="0" text="Reporte de Ventas"/>
+</vistas:VistaUI>

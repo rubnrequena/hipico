@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout:ColapsableGroup xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						xmlns:s="library://ns.adobe.com/flex/spark" 
+						xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:layout="layout.*" width="300" height="100%"
+						creationComplete="titlewindow1_creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import Ventanas.wChat;
+			
+			import mx.core.FlexGlobals;
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			
+			import org.osflash.signals.Signal;
+			
+			private var nc:NetConnection;
+			protected function titlewindow1_creationCompleteHandler(event:FlexEvent):void {
+				nc = FlexGlobals.topLevelApplication.myFMS.nc;
+				nc.call("clientesOnline",new Responder(clientesOnline_handler_funcion));
+			}
+			
+			private function clientesOnline_handler_funcion(clientes:Array):void {
+				dgClientes.dataProvider = new ArrayList(clientes);
+			}
+			public function abrirChat():void {
+				var cw:wChat = Global.chatManager.getChat(dgClientes.selectedItem.id,dgClientes.selectedItem.nombre,dgClientes.selectedItem.bancaID);
+				cw.open();
+			}
+			
+			protected function btnRefrescar_clickHandler(event:MouseEvent):void {
+				nc.call("clientesOnline",new Responder(clientesOnline_handler_funcion));
+			}
+			
+			protected function nombreBanca(item:Object, column:GridColumn):String {
+				//return Global.bancaNombre(item.bancaID);
+				return "";
+			}
+			
+			protected function dgClientes_doubleClickHandler(event:MouseEvent):void {
+				if (dgClientes.selectedIndex>-1) {
+					abrirChat();
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<s:DataGrid id="dgClientes" left="0" right="0" top="40" bottom="0" fontSize="16"
+				requestedRowCount="4" doubleClickEnabled="true" doubleClick="dgClientes_doubleClickHandler(event)">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn dataField="nombre" headerText="Nombre"></s:GridColumn>
+				<s:GridColumn dataField="tipo" headerText="Tipo"></s:GridColumn>
+				<s:GridColumn dataField="bancaID" headerText="Banca" labelFunction="nombreBanca"></s:GridColumn>
+				<s:GridColumn width="32">
+					<s:itemRenderer>
+						<fx:Component>
+							<s:GridItemRenderer>
+								<s:Image verticalCenter="0" horizontalCenter="0" click="outerDocument.abrirChat()" smooth="true" width="30" height="30" source="images/chat48.png" buttonMode="true"/>
+							</s:GridItemRenderer>
+						</fx:Component>
+					</s:itemRenderer>
+				</s:GridColumn>
+			</s:ArrayList>
+		</s:columns>
+	</s:DataGrid>
+	<s:Button id="btnRefrescar" right="5" top="5" label="Refrescar"
+			  click="btnRefrescar_clickHandler(event)" icon="images/refresh24.png"/>
+</layout:ColapsableGroup>

@@ -1,0 +1,184 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   right="0" left="0" bottom="0" top="0"
+			   creationComplete="titlewindow1_creationCompleteHandler(event)"
+			   backgroundAlpha=".8" backgroundColor="0">
+	<fx:Metadata>
+		[Event(name="close", type="mx.events.CloseEvent")]
+		[Event(name="statusChange", type="UI.VerJugadas.comps.CarreraStatusEvent")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import Clases.Banca.VOBanca;
+			
+			import Events.SocketEvent;
+			
+			import libVOs.infoCarrera;
+			
+			import mx.events.CloseEvent;
+			import mx.events.FlexEvent;
+			
+			private var _ganador:Array;
+			private var _tablas:Array;
+			
+			public var carrera:infoCarrera;
+			protected function titlewindow1_creationCompleteHandler(event:FlexEvent):void {
+				_ganador = Global.ganador.carreras_padre.leer(carrera.fecha(),carrera.Hipodromo,carrera.Carrera);
+				_tablas = Global.tablas.tablas_padre.leer(carrera.fecha(),carrera.Hipodromo,carrera.Carrera);
+				var tablaBanca:int; 
+				
+				var ulm:UnLockManager;
+				for (var i:int = 0; i < Global.banca.bancas.numBancas; i++) {
+					ulm = new UnLockManager;
+					if (i%2==0) {
+						ulm.setStyle("backgroundColor","#ffffff");
+						ulm.setStyle("backgroundAlpha",.2);
+					}
+					vgrupo.addElement(ulm);
+					ulm.banca = Global.banca.bancas.bancas[i];
+					ulm.ganador = _ganador[i].Abierta;
+					
+					if (_tablas)
+						tablaBanca = tablaExiste(Global.banca.bancas.bancas[i].ID);
+					else
+						tablaBanca = -1;
+										
+					 if (tablaBanca>-1) {
+						ulm.tablas = _tablas[tablaBanca].Abierta;
+						ulm.general = _tablas[tablaBanca].Abierta==_ganador[i].Abierta?_ganador[i].Abierta:false;
+					} else {
+						ulm.tablas = false;
+						ulm.lockTabla.enabled = false;
+						ulm.general = _ganador[i].Abierta;
+					} 
+					ulm.addEventListener(CarreraStatusEvent.STATUS_CHANGE,onStatusChange);
+				}
+				
+				bgCerrar.addEventListener(MouseEvent.CLICK,group1_clickHandler);
+				btnCerrar.addEventListener(MouseEvent.CLICK,group1_clickHandler);
+				stage.addEventListener(KeyboardEvent.KEY_UP,stage_keyUp);
+				this.setFocus();
+				_tablas=null;
+				_ganador=null;
+				
+				Global.net.addEventListener(SocketEvent.CONECTADO,socket_bancaHandler);
+				Global.net.addEventListener(SocketEvent.DESCONECTADO,socket_bancaHandler);
+				
+				lockGanador.addEventListener(MouseEvent.CLICK,ganador_multiLock);
+				unlockGanador.addEventListener(MouseEvent.CLICK,ganador_multiLock);
+				
+				lockTablas.addEventListener(MouseEvent.CLICK,tabla_multiLock);
+				unlockTablas.addEventListener(MouseEvent.CLICK,tabla_multiLock);
+			}
+			protected function tablaExiste (banca:int):int {
+				for (var i:int = 0; i < _tablas.length; i++) {
+					if (_tablas[i].BancaID==banca) return i;
+				}
+				return -1;
+			}
+			protected function setCarreraStatus_ganador(banca:int,status:Boolean):void {
+				Global.ganador.carreras_padre.carreras_ganadorTaquillas_banca(carrera.FHC,status,banca);
+			}
+			protected function setCarreraStatus_tablas(banca:int,status:Boolean):void {
+				Global.tablas.tablas_padre.carreras_taquillas_banca(carrera.FHC,status,banca);
+			}
+			
+			protected function onStatusChange(event:CarreraStatusEvent):void {
+				switch(event.tipo) {
+					case UnLockManager.GENERAL: {
+						setCarreraStatus_ganador(event.banca,event.status);
+						setCarreraStatus_tablas(event.banca,event.status);
+						
+						Global.net.ganador.statusCarreras(carrera.toDB,event.status,event.banca);
+						Global.net.tabla.statusCarreras(carrera.toDB,event.status,event.banca);
+						break;
+					}
+					case UnLockManager.GANADOR: {
+						setCarreraStatus_ganador(event.banca,event.status);
+						
+						Global.net.ganador.statusCarreras(carrera.toDB,event.status,event.banca);
+						break;
+					}	
+					case UnLockManager.TABLA: {
+						setCarreraStatus_tablas(event.banca,event.status);
+						Global.net.tabla.statusCarreras(carrera.toDB,event.status,event.banca);
+						break;
+					}
+				}
+				dispatchEvent(new CarreraStatusEvent(event.type,event.banca,event.carrera,event.status,event.tipo));
+			}
+			
+			protected function group1_clickHandler(event:MouseEvent):void {
+				dispatchEvent(new CloseEvent(CloseEvent.CLOSE,false,false,-1));
+			}
+			
+			public function dispose():void {
+				btnCerrar.removeEventListener(MouseEvent.CLICK,group1_clickHandler);
+				bgCerrar.removeEventListener(MouseEvent.CLICK,group1_clickHandler);
+				stage.removeEventListener(KeyboardEvent.KEY_UP,stage_keyUp);
+				
+				Global.net.removeEventListener(SocketEvent.CONECTADO,socket_bancaHandler);
+				Global.net.removeEventListener(SocketEvent.DESCONECTADO,socket_bancaHandler);
+				
+				for (var i:int = 0; i < vgrupo.numElements; i++) {
+					(vgrupo.getElementAt(i) as IEventDispatcher).removeEventListener(CarreraStatusEvent.STATUS_CHANGE,onStatusChange);	
+				}
+			}
+			
+			protected function stage_keyUp(event:KeyboardEvent):void {
+				if (event.keyCode==Keyboard.ESCAPE) {
+					dispatchEvent(new CloseEvent(CloseEvent.CLOSE,false,false,-1));
+				}
+			}
+			
+			protected function socket_bancaHandler(event:SocketEvent):void {
+				var b:VOBanca = Global.banca.bancas.bancaByID(event.socket.data.banca);
+				(vgrupo.getElementAt(b.ID-1) as UnLockManager).cn_conectadas.text = b.numTaquillas.toString();
+				(vgrupo.getElementAt(b.ID-1) as UnLockManager).cn_ganadores.text = b.numGanadores.toString();
+				(vgrupo.getElementAt(b.ID-1) as UnLockManager).cn_tablas.text = b.numTablas.toString();
+			}
+			
+			protected function ganador_multiLock(event:MouseEvent):void {
+				var accion:Boolean = event.target.name=="lock"?false:true;
+				for (var i:int = 0; i < vgrupo.numElements; i++) {
+					(vgrupo.getElementAt(i) as UnLockManager).ganador = accion;
+				}
+			}
+			protected function tabla_multiLock(event:MouseEvent):void {
+				var accion:Boolean = event.target.name=="lock"?false:true;
+				for (var i:int = 0; i < vgrupo.numElements; i++) {
+					(vgrupo.getElementAt(i) as UnLockManager).tablas = accion;
+				}
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Group height="100%" width="100%" id="bgCerrar">
+		<s:Button id="btnCerrar" y="19" right="40" label="Cerrar" color="#FFFFFF"
+				  styleName="verJugadas_top"/>
+	</s:Group>
+	<s:Image source="images/iconos2/bg3.jpg" right="40" left="40" top="40" bottom="40" scaleMode="stretch"/>
+	<s:Group right="40" left="40" top="40" bottom="40" color="0xFFFFFF">
+		<s:HGroup x="0" y="-28" gap="3">
+			<s:Button height="28" label="Ganador" icon="images/lock32.png" styleName="verJugadas_top" id="lockGanador" name="lock"/>
+			<s:Button height="28" label="Ganador" icon="images/unlock32.png" styleName="verJugadas_top" id="unlockGanador" name="unlock"/>
+			<s:Spacer width="20"/>
+			<s:Button height="28" label="Tablas" icon="images/lock32.png" styleName="verJugadas_top" id="lockTablas" name="lock"/>
+			<s:Button height="28" label="Tablas" icon="images/unlock32.png" styleName="verJugadas_top" id="unlockTablas" name="unlock"/>
+		</s:HGroup>
+		<s:Scroller width="100%" height="100%">
+			<s:VGroup id="vgrupo" paddingTop="3" paddingLeft="3" paddingRight="3" paddingBottom="3" gap="2">
+				
+			</s:VGroup>
+		</s:Scroller>
+		<s:Rect width="100%" height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xffffff" weight="1"/>
+			</s:stroke>
+		</s:Rect>
+	</s:Group>	
+</s:SkinnableContainer>

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vistas:Modal xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" fontFamily="Verdana" xmlns:vistas="vistas.*">
+	
+	<fx:Script>
+		<![CDATA[
+			
+			
+			static public const VENTAS:int=0;
+			static public const TICKETS:int=1;
+			static public const PAGOS:int=2;
+			
+			protected function clickHandler(event:MouseEvent):void {
+				closeModal(int(event.target.name));
+			}
+			
+			override protected function keyUpHandler(event:KeyboardEvent):void {
+				if (event.keyCode==Keyboard.ESCAPE) closeModal(-1);
+			}
+			
+			
+		]]>
+	</fx:Script>
+	<s:SkinnableContainer width="100%" height="100%" backgroundAlpha=".7" backgroundColor="0" id="closeArea">
+		
+	</s:SkinnableContainer>
+	<s:SkinnableContainer width="350" backgroundAlpha="1" backgroundColor="#F9EAD2" chromeColor="#54795c"
+			 horizontalCenter="0" verticalCenter="0" click="clickHandler(event)">
+		<s:layout>
+			<s:VerticalLayout paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5"/>
+		</s:layout>
+		<s:Button y="10" left="10" right="10" width="340" height="57" label="Reporte de Ventas"
+				  fontSize="24" icon="images/taquillas.png" name="0"/>
+		<s:Button y="75" left="10" right="10" width="340" height="57" label="Reporte de Tickets"
+				  fontSize="24" icon="images/ticket.png" name="1"/>
+		<s:Button left="10" right="10" width="340" height="57" label="Reporte de Pagos" fontSize="24"
+				  icon="images/taquillas.png" name="2"/>
+		<s:Button left="10" right="10" width="340" height="57" label="Cancelar" chromeColor="#DA5D5D"
+				  fontSize="24" name="3"/>
+	</s:SkinnableContainer>
+</vistas:Modal>

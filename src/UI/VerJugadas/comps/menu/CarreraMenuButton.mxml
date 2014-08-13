@@ -1,0 +1,51 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  currentState="closed" fontFamily="Verdana" fontSize="18" backgroundColor="0x00000" backgroundAlpha=".8"
+					  rollOut="skinnablecontainer1_rollOutHandler(event)"
+					  rollOver="skinnablecontainer1_rollOverHandler(event)"
+					  creationComplete="skinnablecontainer1_creationCompleteHandler(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			protected function button1_clickHandler(event:MouseEvent):void {
+				currentState = currentState=="opened"?"closed":"opened";
+			}
+			private var autoClose:Timer;
+			protected function skinnablecontainer1_rollOutHandler(event:MouseEvent):void {
+				if (currentState=="opened") autoClose.start();
+			}
+			protected function skinnablecontainer1_rollOverHandler(event:MouseEvent):void {
+				autoClose.reset();
+			}
+			protected function skinnablecontainer1_creationCompleteHandler(event:FlexEvent):void {
+				autoClose = new Timer(3000,1);
+				autoClose.addEventListener(TimerEvent.TIMER_COMPLETE,autoClose_close);
+			}
+			protected function autoClose_close(event:TimerEvent):void {
+				currentState="closed";
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:states>
+		<s:State name="closed"/>
+		<s:State name="opened"/>
+	</s:states>
+	<s:layout>
+		<s:VerticalLayout gap="3"/>
+	</s:layout>
+	<s:Button icon="images/iconos2/carrera_32.png" click="button1_clickHandler(event)" styleName="verJugadas_top" alpha.opened=".5"
+			  width="136" label="Carrera"/>
+	
+	<s:Button id="btnNuevaCarrera" width="136" includeIn="opened" itemCreationPolicy="immediate"
+			  icon="images/iconos2/calendar_32.png" styleName="verJugadas_top" label="Cambiar"/>
+	<s:Button id="ganadorButton" styleName="verJugadas_top" label="Premios" icon="images/iconos2/flag_32.png" width="136" includeIn="opened" itemCreationPolicy="immediate"/>
+	<s:Button id="premiosBoton" styleName="verJugadas_top" label="Balance" icon="images/iconos2/diagram_32.png" width="136" includeIn="opened" itemCreationPolicy="immediate"/>
+</s:SkinnableContainer>

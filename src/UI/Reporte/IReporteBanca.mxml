@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				width="100%" autoDrawBackground="false"
+				fontFamily="Verdana" fontSize="20">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayList;
+			import mx.graphics.SolidColor;
+			
+			import spark.primitives.Rect;
+			private var j:Number; private var p:Number;
+			override public function set data(value:Object):void {
+				super.data = value;
+				if (value) {
+					banca.text = value.Nombre;
+					banca.text  = banca.text.split("CENTRO HIPICO").join("C.H.");
+					
+					reportes.height = value.reportes.length*16;
+					reportes.dataProvider = new ArrayList(value.reportes);
+					j=0; p=0;
+					for (var i:int = 0; i < value.reportes.length; i++) {
+						if (value.reportes[i]) {
+							j += value.reportes[i].MontoJugado;
+							p += value.reportes[i].Premios;
+						}
+					}
+					jugado.text = Global.nf.format(j);
+					premios.text = Global.nf.format(p);
+					balance.text = Global.nf.format(j-p);
+					
+					if ((j-p)>0) {
+						balance.setStyle("color","0x000000");
+					} else {
+						balance.setStyle("color","0xc00000");
+					}
+					
+					al.visible = itemIndex%2==0;
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%" id="al">
+		<s:fill>
+			<s:SolidColor color="0x54795c" alpha=".5"/>
+		</s:fill>
+	</s:Rect>
+	<s:HGroup width="100%" gap="0" y="5">
+		<s:Label text="BANCA" width="100%" id="banca" maxDisplayedLines="1"/>
+		<s:Label id="jugado" width="130" fontSize="16" fontWeight="bold" text="0.00"
+				 textAlign="right"/>
+		<s:Label id="premios" width="130" fontSize="16" fontWeight="bold" text="0.00"
+				 textAlign="right"/>
+		<s:Label id="balance" width="130" fontSize="16" fontWeight="bold" text="0.00"
+				 textAlign="right"/>
+	</s:HGroup>
+	<s:DataGroup y="25" itemRenderer="UI.Reporte.IReporteBancaDetalle" width="100%" id="reportes">
+		<s:layout>
+			<s:VerticalLayout gap="0" horizontalAlign="contentJustify" />
+		</s:layout>
+	</s:DataGroup>
+</s:ItemRenderer>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						xmlns:s="library://ns.adobe.com/flex/spark"  fontFamily="Verdana"
+						xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:layout="layout.*" width="676" height="472" xmlns:UI="UI.*"
+						creationComplete="colapsablegroup1_creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script source="MonitorMacuare_as.as"/>
+	<s:Rect x="0" y="14" width="100%" height="100%">
+		<s:fill>
+			<s:SolidColor color="0xffffff" alpha=".9"/>
+		</s:fill>
+	</s:Rect>
+	<s:Form width="264" height="435" fontSize="16">
+		<s:FormItem width="100%" height="30" label="Bancas:">
+		</s:FormItem>
+		<s:DropDownList id="bancas" width="234" labelField="Nombre" requireSelection="true" labelFunction="labelBanca"/>
+		<s:FormItem width="100%" height="30" label="Fecha:">
+		</s:FormItem>
+		<UI:myDate id="fecha"/>
+		<s:FormItem width="100%" height="30" label="Hipodromo">
+		</s:FormItem>
+		<s:DropDownList id="hipodromo" width="234" labelField="hipodromo" requireSelection="true"/>
+		<s:Spacer height="30"/>
+		<s:Button id="btnMonitor" width="250" height="35" label="Iniciar"
+				  click="btnMonitor_clickHandler(event)" fontSize="20"/>
+		<s:Button id="macuare" width="250" label="Macuare" click="cerrarMacuare(event)"
+				  icon="images/lock32.png" skinClass="skins.W8Button"/>
+		<s:Button id="macuarito" width="250" label="Macuarito" click="cerrarMacuare(event)"
+				  icon="images/lock32.png" skinClass="skins.W8Button"/>
+		<s:Spacer height="100%"/>
+		<s:Button id="btnAtras" width="250" height="30" label="Atras"/>
+	</s:Form>
+	<s:DataGrid id="dg" x="272" y="10" width="394" height="425" requestedRowCount="4">
+		<s:columns>
+			<s:ArrayList>
+				<s:GridColumn dataField="nombre" headerText="Nombre"></s:GridColumn>
+				<s:GridColumn dataField="taquilla" headerText="Taquilla"></s:GridColumn>
+				<s:GridColumn dataField="ejemplares" headerText="Ejemplares"></s:GridColumn>
+				<s:GridColumn dataField="monto" headerText="Monto"></s:GridColumn>
+			</s:ArrayList>
+		</s:columns>
+	</s:DataGrid>
+	<s:Label id="lblTotal" right="10" bottom="7" fontSize="21" text="0.00"/>
+</s:Group>

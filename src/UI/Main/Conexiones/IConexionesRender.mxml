@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                xmlns:s="library://ns.adobe.com/flex/spark"
+                autoDrawBackground="true"
+                creationComplete="itemrenderer1_creationCompleteHandler(event)" fontFamily="Verdana"
+                fontSize="16">
+
+    <fx:Script>
+		<![CDATA[
+        import Cliente.CSocket;
+        
+        import Common.Misc;
+        
+        import mx.events.FlexEvent;
+
+        override public function set data(value:Object):void {
+            super.data = value;
+            if (value.data && value.data.banca) {
+                banca.text = Misc.fillZeros(value.data.banca, 2);
+                banca_nombre.text = Global.banca.bancas.bancaByID(value.data.banca).Nombre.split("CENTRO HIPICO ").join("");
+                taquilla.text = value.data.taquilla;
+                tipo.text = value.data.tipo;
+                version.text = value.data.version;
+                dateConectado.text = Misc.formatHora(value.data.conectadoDesde);
+                ip.text = value.ip;
+                appid.text = value.data.appid;
+            }
+        }
+
+        protected function itemrenderer1_creationCompleteHandler(event:FlexEvent):void {
+            desconectar.addEventListener(MouseEvent.CLICK, onDesconectar);
+            update.addEventListener(MouseEvent.CLICK, onUpdate);
+        }
+
+        protected function onDesconectar(event:MouseEvent):void {
+            (data as CSocket).desconectar();
+        }
+
+        protected function onUpdate(event:MouseEvent):void {
+            (data as CSocket).enviarDatos("updateApp", null);
+        }
+        ]]>
+	</fx:Script>
+	<s:HGroup width="100%" verticalAlign="middle" gap="0">
+		<s:Image id="desconectar" width="32" height="100%" buttonMode="true" smooth="true" source="images/iconos2/disconnect.png"/>
+		<s:Image id="update" width="32" height="100%" buttonMode="true" smooth="true" source="images/iconos2/update.png"/>
+		<s:Rect width="1" height="100%"><s:fill><s:SolidColor color="0" alpha=".3"/></s:fill></s:Rect>
+		<s:VGroup width="200" fontSize="14" paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" gap="0">
+			<s:Label id="banca_nombre" width="100%" text="BANCA" textAlign="left" maxDisplayedLines="1"/>
+			<s:Label id="banca" color="#616161" fontStyle="italic" text="00" textAlign="left"/>
+		</s:VGroup>
+		<s:Rect width="1" height="100%"><s:fill><s:SolidColor color="0" alpha=".3"/></s:fill></s:Rect>
+		<s:VGroup width="100%" fontSize="14" paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" gap="0">
+			<s:Label id="taquilla" text="TAQUILLA" width="100%" maxDisplayedLines="1"/>
+			<s:Label id="appid" width="100%" color="#616161" fontStyle="italic" text="APPID"/>
+		</s:VGroup>
+		<s:Rect width="1" height="100%"><s:fill><s:SolidColor color="0" alpha=".3"/></s:fill></s:Rect>
+		<s:Label id="tipo" width="150" paddingLeft="3" paddingRight="3" text="TIPO"/>
+		<s:Rect width="1" height="100%"><s:fill><s:SolidColor color="0" alpha=".3"/></s:fill></s:Rect>
+		<s:Label id="version" width="100" paddingLeft="3" paddingRight="3" text="00.00.000"/>
+		<s:Rect width="1" height="100%"><s:fill><s:SolidColor color="0" alpha=".3"/></s:fill></s:Rect>
+		<s:VGroup width="160" fontSize="14" paddingBottom="3" paddingTop="3" paddingLeft="3" paddingRight="3" gap="0">
+			<s:Label id="ip" width="145" paddingLeft="3" paddingRight="3" text="000.000.000.000"/>
+			<s:Label id="dateConectado" width="110" color="#616161" fontStyle="italic" paddingLeft="3" paddingRight="3" text="00:00:00 AA"/>
+		</s:VGroup>
+	</s:HGroup>
+	<s:Rect width="100%" height="1" bottom="0"><s:fill><s:SolidColor color="0" alpha=".3"/></s:fill></s:Rect>
+</s:ItemRenderer>

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"  fontFamily="Verdana"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="280" height="114" xmlns:UI="UI.*"
+		 creationComplete="group1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import Common.Misc;
+			
+			import mx.collections.ArrayList;
+			import mx.events.CalendarLayoutChangeEvent;
+			import mx.events.FlexEvent;
+			
+			protected function group1_creationCompleteHandler(event:FlexEvent):void
+			{
+				desde.addEventListener(CalendarLayoutChangeEvent.CHANGE,desdeCambio,false,0,true);
+				hasta.addEventListener(CalendarLayoutChangeEvent.CHANGE,hastaCambio,false,0,true);
+				getHipodromos();
+			}
+			
+			protected function desdeCambio(event:CalendarLayoutChangeEvent):void
+			{
+				if (desde.selectedDate>hasta.selectedDate) {
+					hasta.selectedDate=desde.selectedDate;
+				}
+				getHipodromos();
+			}
+			
+			protected function hastaCambio(event:CalendarLayoutChangeEvent):void
+			{
+				if (hasta.selectedDate<desde.selectedDate) {
+					desde.selectedDate=hasta.selectedDate;
+				}
+				getHipodromos();
+			}
+			
+			protected function button1_clickHandler(event:MouseEvent):void {
+				ddHipodromo.selectedIndex=-1;
+			}
+			
+			private function getHipodromos():void {
+				ddHipodromo.dataProvider = new ArrayList(Global.banca.sql('SELECT Hipodromo FROM Carreras WHERE Fecha BETWEEN "'+desde.fechaSelecionada+'" AND "'+hasta.fechaSelecionada+'" GROUP BY Hipodromo').data);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace skins "skins.*";
+		.btn {
+			bgAlpha:0.4;
+		}
+		
+	</fx:Style>
+	<s:Rect width="100%" height="100%" >
+		<s:fill>
+			<s:SolidColor color="0x54795c"/>
+		</s:fill>
+	</s:Rect>
+	<s:Form x="-10" y="0" width="290" height="114">
+		<s:FormItem height="25" label="Desde:">
+			<UI:myDate id="desde" name="desde" fontSize="16" selectedDate="{new Date()}"/>
+		</s:FormItem>
+		<s:FormItem height="30" label="Hasta:">
+			<UI:myDate id="hasta" name="hasta" fontSize="16" selectedDate="{new Date()}"/>
+		</s:FormItem>
+	</s:Form>
+	<s:DropDownList id="ddHipodromo" x="15" y="84" width="174" fontSize="20" prompt="Hipodromo" labelField="Hipodromo"></s:DropDownList>
+	<s:Button id="btnBuscar" styleName="btn" right="3" chromeColor="#FFFFFF" icon="images/search.png" verticalCenter="-8"/>
+	<s:Button x="193" y="89" skinClass="spark.skins.spark.windowChrome.CloseButtonSkin" click="button1_clickHandler(event)"/>
+</s:Group>

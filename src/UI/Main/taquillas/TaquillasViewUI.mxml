@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vistas:VistaUI xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark"  fontFamily="Verdana"
+				xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:vistas="vistas.*" width="100%" height="100%" xmlns:taquillas="UI.Main.taquillas.*">
+	<fx:Declarations>
+		<fx:Object id="headerData" taquillaID="ID" nombre="NOMBRE" bancaString="BANCA" usuario="USUARIO" activaString="ACTIVA" tipoString="TIPO" />
+	</fx:Declarations>
+	<s:Rect width="100%" height="100%">
+		<s:fill><s:SolidColor color="0x000000" alpha=".5"/></s:fill>
+	</s:Rect>
+	<s:SkinnableContainer left="30" right="30" top="30" bottom="30" backgroundColor="0xffffff">
+		<s:Rect width="100%" height="40">
+			<s:fill><s:SolidColor color="0x54795c"/></s:fill>
+		</s:Rect>
+		<s:HGroup right="0" height="40" id="buttonBar" paddingBottom="5" paddingLeft="5" paddingRight="5" paddingTop="5">
+			
+		</s:HGroup>
+		<s:Label x="5" y="8" color="#DDDDDD" fontSize="26" text="Taquillas"/>
+		<taquillas:ItemTaquilla x="0" y="40" height="30" autoDrawBackground="false" id="header"/>
+		<s:List width="100%" height="100%" y="70" id="lista" itemRenderer="UI.Main.taquillas.ItemTaquilla">
+			
+		</s:List>
+	</s:SkinnableContainer>
+	<s:Rect left="30" right="30" top="30" bottom="30">
+		<s:stroke>
+			<s:SolidColorStroke color="0x454545"/>
+		</s:stroke>
+	</s:Rect>
+</vistas:VistaUI>

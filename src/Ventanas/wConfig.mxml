@@ -1,0 +1,144 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 xmlns:Comps="Comps.*"
+		 xmlns:Config="Ventanas.Config.*"
+		 width="800" height="400" creationComplete="titlewindow1_creationCompleteHandler(event)" fontFamily="Verdana"
+		 width.general="750" height.general="500">
+    <s:states>
+        <s:State name="general"/>
+        <s:State name="admin"/>
+    </s:states>
+    <fx:Script source="wConfig_as.as"/>
+    <fx:Declarations>
+        <!-- Place non-visual elements (e.g., services, value objects) here -->
+    </fx:Declarations>
+	<s:VGroup includeIn="general" width="310" height="447" paddingLeft="5" paddingRight="5"
+			  paddingTop="10">
+		<s:Label fontSize="30" text="Configuración Local"/>
+		<mx:HRule width="100%"/>
+		<s:Label text="Contraseña:"/>
+		<Comps:sTextInput campo="contrasena" width="100%" id="pass" autoLoad="true" />
+		<s:Label text="Servidor Web:"/>
+		<Comps:sTextInput campo="servidorWeb" width="100%" id="servidorWeb" autoLoad="true"/>
+		<s:Label text="Servidor Local:"/>
+		<Comps:sTextInput campo="servidorLocal" width="100%" id="servidorLocal" autoLoad="true" />
+		<s:Label text="Agrupar Balance"/>
+		<s:DropDownList id="agruparBalance" change="agruparBalance_changeHandler(event)" chromeColor="#54795c" width="100%">
+			<s:ArrayList>
+				<fx:Object label="Categoria"/>
+				<fx:Object label="Taquilla"/>
+			</s:ArrayList>
+		</s:DropDownList>
+	</s:VGroup>
+	<mx:Accordion id="configAccordion" includeIn="general" right="0" top="0" bottom="0" width="440" creationPolicy="all" chromeColor="#54795c">
+		<s:NavigatorContent id="taquillasPan" width="100%" height="100%" label="Taquillas" backgroundColor="#F9EAD2" creationComplete="taquillasPan_onComplete(event)">
+			<s:Form width="431">
+				<s:FormItem x="10" y="10" height="20" label="Inicio de Taquillas:">
+					<s:CheckBox name="inicioTaquillas" id="inicioTaquillas" change="inicioTaquillas_changeHandler(event)"/>
+				</s:FormItem>
+				<s:FormItem height="25" label="Dividendo:">
+					<s:NumericStepper id="dividendoGanador" change="ns_changeHandler(event)"/>
+				</s:FormItem>
+			</s:Form>
+		</s:NavigatorContent>
+		<s:NavigatorContent backgroundColor="#F9EAD2" width="100%" height="100%" label="Tablas" creationComplete="tablasPan_creationCompleteHandler(event)" id="tablasPan">
+			<s:Scroller width="100%" height="100%" horizontalScrollPolicy="off">
+				<s:Group width="100%" height="100%">
+					<mx:Form id="configTablita" x="0" y="-7" width="100%" height="90">
+						<mx:FormItem label="Publicar Tablas:" height="25">
+							<s:CheckBox name="publicarTablas" id="publicar" label="" change="inicioTaquillas_changeHandler(event)"/>
+						</mx:FormItem>
+						<mx:FormItem label="Enviar doble:" height="25">
+							<s:CheckBox name="enviarDoble" id="doble" label="" change="inicioTaquillas_changeHandler(event)"/>
+						</mx:FormItem>
+					</mx:Form>
+					<s:Group x="0" y="80" width="100%" height="235">
+						<s:Label x="3" y="5" fontFamily="Courier New" fontSize="18"
+								 text="Auto Tablas"/>
+						<s:DataGrid x="11" y="23" width="413" height="156" dataProvider="{tablas_rangos}"
+									fontSize="16" requestedRowCount="4" rowHeight="32" id="dgTablas_rangos">
+							<s:columns>
+								<s:ArrayList>
+									<s:GridColumn dataField="Minimo" headerText="Mínimo"/>
+									<s:GridColumn dataField="Maximo" headerText="Máximo"/>
+									<s:GridColumn dataField="Tablas" headerText="Tablas"/>
+									<s:GridColumn headerText="" width="32">
+										<s:itemRenderer>
+											<fx:Component>
+												<s:GridItemRenderer>
+													<s:Button icon="images/block32.png" skinClass="srWindows.W8Button" width="32" height="32"
+															  click="outerDocument.tablas_delRango_clickHandler()"/>
+												</s:GridItemRenderer>
+											</fx:Component>
+										</s:itemRenderer>
+									</s:GridColumn>
+								</s:ArrayList>
+							</s:columns>
+						</s:DataGrid>
+						<s:TextInput x="11" y="185" width="93" fontSize="16" prompt="Minimo" id="pMinimo"/>
+						<s:TextInput x="102" y="185" width="92" fontSize="16" prompt="Maximo" id="pMaximo"/>
+						<s:TextInput x="193" y="185" width="90" fontSize="16" prompt="Tablas" id="cantTablas"/>
+						<s:Button x="282" y="183" width="32" height="32" icon="./images/add32.png" skinClass="srWindows.W8Button" id="tablas_addRango" click="tablas_addRango_clickHandler(event)"/>
+					</s:Group>
+				</s:Group>
+			</s:Scroller>
+		</s:NavigatorContent>
+		<Config:Macuare width="100%" height="100%" label="Macuare"/>
+		<s:NavigatorContent backgroundColor="#F9EAD2" width="100%" height="100%" label="Bancas" id="bancasPan"  creationComplete="bancasPan_creationCompleteHandler(event)">
+			<s:Form x="2" y="0" width="266" height="78">
+				<s:FormItem height="22" label="Nombre:">
+					<s:TextInput id="bancaNombre" />
+				</s:FormItem>
+				<s:FormItem label="RIF:">
+					<s:TextInput id="bancaRIF" />
+				</s:FormItem>
+			</s:Form>
+			<s:DataGrid id="dgBancas" left="10" right="10" top="86" bottom="10" rowHeight="32">
+				<s:columns>
+					<s:ArrayList>
+						<s:GridColumn headerText="ID" dataField="ID" width="40"/>
+						<s:GridColumn headerText="Nombre" dataField="Nombre"/>
+						<s:GridColumn headerText="RIF" dataField="RIF"/>
+						<s:GridColumn headerText="" width="32">
+							<s:itemRenderer>
+								<fx:Component>
+									<s:GridItemRenderer>
+										<s:Image source="images/block.png" click="outerDocument.removerBanca()" buttonMode="true"/>
+									</s:GridItemRenderer>
+								</fx:Component>
+							</s:itemRenderer>
+						</s:GridColumn>
+					</s:ArrayList>
+				</s:columns>
+			</s:DataGrid>
+			<s:Button id="btnAddBanca" x="279" y="10" width="142" height="35" label="Agregar"
+					  click="btnAddBanca_clickHandler(event)" fontSize="16"
+					  icon="images/accept32.png" styleName="verJugadas_top"/>
+		</s:NavigatorContent>
+	</mx:Accordion>
+	<s:Button id="btnAdmin" left="10" bottom="10" height="36" label="Administrador"
+			  styleName="verJugadas_top"
+			  left.admin="10" bottom.admin="10" width.admin="70" label.admin="Volver"
+			  left.general="10" bottom.general="10" height.general="35"/>
+	<s:Form includeIn="admin" x="10" y="10" id="adminForm" creationComplete="adminForm_complete(event)">
+		<s:FormItem width="480" label="WebId:">
+			<Comps:sTextInput autoLoad="true" campo="webID"/>
+		</s:FormItem>
+		<s:FormItem label="Activar Calculadora Dividendos:">
+			<s:CheckBox id="calcDividendo" change="calDividendos_change(event)"/>
+		</s:FormItem>
+		<s:FormItem label="Activar Randoms ID:">
+			<s:CheckBox id="randomID" change="randomID_change(event)"/>
+		</s:FormItem>
+		<s:FormItem label="Random ID Semilla:">
+			<s:NumericStepper minimum="999" maximum="999999999" maxChars="9" id="randomSeed" change="randomSeed_change(event)"/>
+		</s:FormItem>
+	</s:Form>
+	<s:Rect width="100%" height="100%">
+		<s:stroke><s:SolidColorStroke color="0xCCCCCC" alpha="1"/></s:stroke>
+	</s:Rect>
+	<s:Button id="btnAtras" includeIn="general" x="221" y="455" width="80" height="35" label="Cerrar"/>
+	<s:Button includeIn="admin" x="518" y="10" width="272" height="30" label="Reiniciar Datos" id="btnReiniciarDatos"/>
+</s:Group>

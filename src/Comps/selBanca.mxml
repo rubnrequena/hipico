@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" chromeColor="#C3E47B"
+		 width="400" height="200" title="Seleccione Banca" creationComplete="panel1_creationCompleteHandler(event)">
+	<fx:Metadata>
+		[Event(name="bancaSeleccionada", type="events.Evento")]
+	</fx:Metadata>
+	<fx:Script>
+		<![CDATA[
+			import Clases.Banca.VOBanca;
+			
+			import Cliente.CSocket;
+			
+			import events.Evento;
+			
+			import mx.collections.ArrayList;
+			import mx.events.FlexEvent;
+			
+			private var socket:CSocket;
+			protected function panel1_creationCompleteHandler(event:FlexEvent):void {
+				var b:Array = new Array;
+				var v:Vector.<int> = Global.net.clientesByCampo({tipo:"Remate"});
+				for (var i:int = 0; i < v.length; i++) {
+					b.push(Global.banca.bancas.bancaByID(Global.net.cliente(v[i]).data.banca));
+				}
+				ddBancas.dataProvider = new ArrayList(b);
+				btnOK.addEventListener(MouseEvent.CLICK,onClick);
+			}
+			
+			protected function onClick(event:MouseEvent):void {
+				dispatchEvent(new Evento("bancaSeleccionada",ddBancas.selectedItem));
+			}
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Form x="0" y="0" width="397" height="100%" fontSize="24">
+		<s:FormItem label="Banca" >
+			<s:DropDownList width="283" labelField="Nombre" id="ddBancas"/>
+		</s:FormItem>
+	</s:Form>
+	<s:Button right="10" bottom="10" label="Aceptar" fontSize="20" icon="images/accept32.png" id="btnOK"/>
+</s:Panel>

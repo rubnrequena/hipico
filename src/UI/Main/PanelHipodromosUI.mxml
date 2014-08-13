@@ -1,0 +1,69 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						xmlns:s="library://ns.adobe.com/flex/spark" 
+						xmlns:mx="library://ns.adobe.com/flex/mx" xmlns:layout="layout.*" width="300" height="400"
+						creationComplete="colapsablegroup1_creationCompleteHandler(event)">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[			
+			import mx.collections.ArrayList;
+			import mx.events.FlexEvent;
+			import mx.utils.StringUtil;
+			
+			protected function colapsablegroup1_creationCompleteHandler(event:FlexEvent):void
+			{
+				removerHipodromo.addEventListener(MouseEvent.CLICK,removerHipodromo_click,false,0,true);
+				insertarHipodromo.addEventListener(MouseEvent.CLICK,insertarHipodromo_click,false,0,true);
+				nombreHipodromo.addEventListener(FlexEvent.ENTER,nombreHipodromo_enter,false,0,true);
+				
+				updateDataGrid();
+			}
+			
+			protected function removerHipodromo_click(event:MouseEvent):void {
+				if (list.selectedIndex>-1) {
+					Global.banca.hipodromos.remover(list.selectedItem.Hipodromo);
+					updateDataGrid();
+				}
+			}
+			
+			private function updateDataGrid():void {
+				list.dataProvider = new ArrayList(Global.banca.hipodromos.datos);
+				nombreHipodromo.text = "";
+			}
+			
+			protected function insertarHipodromo_click(event:MouseEvent):void {
+				if (nombreHipodromo.text.length>0) {
+					Global.banca.hipodromos.insertar(StringUtil.trim(nombreHipodromo.text));
+					updateDataGrid();
+				}
+			}
+			
+			protected function nombreHipodromo_enter(event:FlexEvent):void
+			{
+				if (nombreHipodromo.text.length>0) {
+					Global.banca.hipodromos.insertar(StringUtil.trim(nombreHipodromo.text));
+					updateDataGrid();
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:SolidColor color="#54795c" alpha=".8"/>
+		</s:fill>
+	</s:Rect>
+	<s:List id="list" x="0" top="38" bottom="78" width="300" contentBackgroundColor="#F9EAD2"
+			fontSize="25" labelField="Hipodromo">
+		
+	</s:List>
+	<s:Button id="removerHipodromo" x="5" bottom="40" width="290" height="30"
+			  label="Remover Hipodromo" styleName="verJugadas_top"/>
+	<s:Button id="btnAtras" x="5" bottom="5" width="290" height="30"
+			  label="Atras" styleName="verJugadas_top"/>
+	<s:TextInput x="7" y="5" width="200" fontSize="20" prompt="Hipodromo" id="nombreHipodromo"/>
+	<s:Button id="insertarHipodromo" x="215" y="5" width="80" height="30" label="Agregar"
+			  styleName="verJugadas_top"/>
+</s:Group>

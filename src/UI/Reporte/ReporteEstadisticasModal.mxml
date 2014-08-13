@@ -1,0 +1,142 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vistas:Modal xmlns:fx="http://ns.adobe.com/mxml/2009" 
+						xmlns:s="library://ns.adobe.com/flex/spark" 
+						xmlns:mx="library://ns.adobe.com/flex/mx"
+						 xmlns:Reporte="Ventanas.Reporte.*" backgroundColor="0" backgroundAlpha=".6"
+						fontFamily="Verdana" width="100%" height="100%" xmlns:vistas="vistas.*" creationComplete="modal2_creationCompleteHandler(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			
+			import spark.formatters.NumberFormatter;
+			
+			private var totalJugado:Number=0;
+			private var totalPremios:Number=0;
+			private var globalJugado:Number=0;
+			private var globalPremios:Number=0;
+			private var nf:NumberFormatter = new NumberFormatter;
+			
+			public var premiosGanador:Array;
+			public var premiosTablas:Array;
+			public var premiosRemate:Array;
+			public var premiosMacuare:Array;
+			public var numReportes:int;
+			
+			protected function btnCerrar_clickHandler(event:MouseEvent):void {
+				closeModal();
+			}
+			
+			protected function modal2_creationCompleteHandler(event:FlexEvent):void {
+				globalJugado=0; globalPremios=0;
+				
+				totalJugado=0; totalPremios=0;
+				var len:int;
+				var i:int;
+				
+				len = premiosGanador?premiosGanador.length:0;
+				for (i = 0; i < len; i++) {
+					totalJugado += premiosGanador[i].MontoJugado;
+					totalPremios += premiosGanador[i].Premios;
+				}
+				lbl_ganadorJugado.text = nf.format(totalJugado);
+				lbl_ganadorPremios.text = nf.format(totalPremios);
+				lbl_ganadorBalance.text = nf.format(totalJugado-totalPremios);
+				globalJugado += totalJugado; globalPremios += totalPremios;
+				
+				totalJugado=0; totalPremios=0;
+				len = premiosTablas?premiosTablas.length:0;
+				for (i = 0; i < len; i++) {
+					totalJugado += premiosTablas[i].MontoJugado;
+					totalPremios += premiosTablas[i].Premios;
+				}
+				lbl_tablasJugado.text = nf.format(totalJugado);
+				lbl_tablasPremios.text = nf.format(totalPremios);
+				lbl_tablasBalance.text = nf.format(totalJugado-totalPremios);
+				globalJugado += totalJugado; globalPremios += totalPremios;
+				
+				totalJugado=0; totalPremios=0;
+				len = premiosRemate?premiosRemate.length:0;
+				for (i = 0; i < len; i++) {
+					totalJugado += premiosRemate[i].MontoJugado;
+					totalPremios += premiosRemate[i].Premios;
+				}
+				lbl_remateJugado.text = nf.format(totalJugado);
+				lbl_rematePremios.text = nf.format(totalPremios);
+				lbl_remateBalance.text = nf.format(totalJugado-totalPremios);
+				globalJugado += totalJugado; globalPremios += totalPremios;
+				
+				lbl_globalJugado.text = nf.format(globalJugado);
+				lbl_globalPremios.text = nf.format(globalPremios);
+				lbl_globalBalance.text = nf.format(globalJugado-globalPremios);
+				lbl_activos.text = numReportes.toString();
+				lbl_inactivos.text = (Global.banca.bancas.numBancas-numReportes).toString();
+				
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:SkinnableContainer backgroundColor="#EEEEEE" fontSize="18" width="606" verticalCenter="0" horizontalCenter="0">
+		<s:TileGroup>
+		<s:Form width="300">
+			<s:FormHeading height="32" label="General" textAlign="right"/>
+			<s:FormItem label="Jugado:" styleName="labelSmall" height="20">
+				<Reporte:negativeRedColorLabel text="0.00 Bs" id="lbl_globalJugado"/>
+			</s:FormItem>
+			<s:FormItem label="Premios:" styleName="labelSmall" height="20">
+				<Reporte:negativeRedColorLabel text="0.00 Bs" id="lbl_globalPremios"/>
+			</s:FormItem>
+			<s:FormItem label="Balance:" styleName="labelSmall" height="20">
+				<Reporte:negativeRedColorLabel text="0.00 Bs" id="lbl_globalBalance"/>
+			</s:FormItem>
+			<s:FormItem label="Activos:" styleName="labelSmall" height="20">
+				<s:Label text="0.00 Bs" id="lbl_activos"/>
+			</s:FormItem>
+			<s:FormItem label="Inactivos:" styleName="labelSmall">
+				<s:Label text="0.00 Bs" id="lbl_inactivos"/>
+			</s:FormItem>
+		</s:Form>
+		<s:Form width="300">
+			<s:FormHeading label="Ganador" textAlign="right"/>
+			<s:FormItem label="Jugado:" styleName="labelSmall" height="20">
+				<Reporte:negativeRedColorLabel text="0.00 Bs" id="lbl_ganadorJugado"/>
+			</s:FormItem>
+			<s:FormItem label="Premios:" styleName="labelSmall" height="20">
+				<Reporte:negativeRedColorLabel text="0.00 Bs" id="lbl_ganadorPremios"/>
+			</s:FormItem>
+			<s:FormItem label="Balance:" styleName="labelSmall">
+				<Reporte:negativeRedColorLabel text="0.00 Bs" id="lbl_ganadorBalance"/>
+			</s:FormItem>
+		</s:Form>
+		<s:Form>
+			<s:FormHeading label="Tablas" textAlign="right"/>
+			<s:FormItem label="Jugado:" styleName="labelSmall" height="20">
+				<Reporte:negativeRedColorLabel text="0.00 Bs" id="lbl_tablasJugado"/>
+			</s:FormItem>
+			<s:FormItem label="Premios:" styleName="labelSmall" height="20">
+				<Reporte:negativeRedColorLabel text="0.00 Bs" id="lbl_tablasPremios"/>
+			</s:FormItem>
+			<s:FormItem label="Balance:" styleName="labelSmall">
+				<Reporte:negativeRedColorLabel text="0.00 Bs" id="lbl_tablasBalance"/>
+			</s:FormItem>
+		</s:Form>
+		<s:Form>
+			<s:FormHeading label="Remate" textAlign="right"/>
+			<s:FormItem label="Jugado:" styleName="labelSmall" height="20">
+				<Reporte:negativeRedColorLabel text="0.00 Bs" id="lbl_remateJugado"/>
+			</s:FormItem>
+			<s:FormItem label="Premios:" styleName="labelSmall" height="20">
+				<Reporte:negativeRedColorLabel text="0.00 Bs" id="lbl_rematePremios"/>
+			</s:FormItem>
+			<s:FormItem label="Balance:" styleName="labelSmall" height="20">
+				<Reporte:negativeRedColorLabel text="0.00 Bs" id="lbl_remateBalance"/>
+			</s:FormItem>
+		</s:Form>
+		</s:TileGroup>
+		<s:Button id="btnCerrar" bottom="0" width="100%" height="40" label="Cerrar" click="btnCerrar_clickHandler(event)" chromeColor="#FF885F"/>
+	</s:SkinnableContainer>
+</vistas:Modal>

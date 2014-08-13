@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+					  xmlns:s="library://ns.adobe.com/flex/spark"
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  width="240" height="30" backgroundColor="0xFF0000"
+					  backgroundColor.open="#B4FF00">
+	<s:states>
+		<s:State name="close"/>
+		<s:State name="open"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	
+	<fx:Script>
+		<![CDATA[
+			public function status (abiertas:int):void {
+				currentState = abiertas>0?"open":"close";
+			}
+		]]>
+	</fx:Script>
+	<s:Image width="30" height="30" source="images/lock32.png"
+			 source.open="images/unlock32.png"/>
+	<s:Label x="35" color="#FFFFFF" fontFamily="Verdana" fontSize="18" fontWeight="bold"
+			 text="BANCAS CERRADAS" verticalAlign="middle" verticalCenter="0"
+			 color.open="#000000" text.open="BANCAS ABIERTAS"/>
+</s:SkinnableContainer>

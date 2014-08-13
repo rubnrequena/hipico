@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx"  width="100%"
+				autoDrawBackground="true" fontFamily="Verdana" fontSize="16" mouseChildren="false">
+	<fx:Script>
+		<![CDATA[
+			override public function set data(value:Object):void {
+				super.data = value;
+				if (value) {
+					reporte.text = value.Reporte;
+					jugado.text = Global.nf.format(value.MontoJugado);
+					premios.text = Global.nf.format(value.Premios);
+					balance.text = Global.nf.format(value.MontoJugado-value.Premios);
+					if (value.hasOwnProperty("Tipo")) {
+						tipo.text = value.Tipo+": ";
+						tipo.width = 85;
+					} else {
+						tipo.text = null;
+						tipo.width = 0;
+					}
+					
+					if (value.MontoJugado-value.Premios>0) {
+						balance.setStyle("color","0x000000");
+					} else {
+						balance.setStyle("color","0xc00000");
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:HGroup width="100%" gap="0">
+		<s:Label id="tipo"/>
+		<s:Label id="reporte" width="100%"/>
+		<s:Label text="0.00" width="130" id="jugado" textAlign="right"/>
+		<s:Label text="0.00" width="130" id="premios" textAlign="right"/>
+		<s:Label text="0.00" width="130" id="balance" textAlign="right"/>
+	</s:HGroup>
+</s:ItemRenderer>

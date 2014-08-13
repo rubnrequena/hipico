@@ -1,0 +1,159 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+                      xmlns:s="library://ns.adobe.com/flex/spark"
+                      width="100%" height="50">
+    <s:states>
+		<s:State name="State1"/>
+		<s:State name="empate"/>
+	</s:states>
+	<fx:Declarations>
+		<fx:int id="banca"/>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+        import Validacion.cValidar;
+        
+        import mx.core.IVisualElement;
+        import mx.graphics.SolidColor;
+        
+        import org.osflash.signals.Signal;
+        
+        import spark.components.Label;
+        import spark.primitives.Rect;
+
+        private var r:Rect;
+        private var lbl:Label;
+        public var reiniciarGanadorHandler:Signal = new Signal;
+
+        public function get paga():Number {
+            return isNaN(Number(txtDiv.text))?0:Number(txtDiv.text);
+        }
+
+        public function get paga2():Number {
+			return isNaN(Number(txtDiv0.text))?0:Number(txtDiv0.text);
+        }
+
+        [Bindable]
+        private var _ganador:Boolean;
+
+        public function get tieneGanador():Boolean {
+            return _ganador;
+        }
+
+        public function set tieneGanador(value:Boolean):void {
+            _ganador = value;
+            txtDiv.enabled = !value;
+            txtDiv0.enabled = !value;
+            marcaGanador.visible = value;
+        }
+
+        public function set ganador(value:Number):void {
+            tieneGanador = value > 0 ? true : false;
+            txtDiv.text = value.toString();
+        }
+
+        public function set ganador2(value:Number):void {
+            txtDiv0.text = value.toString();
+        }
+
+        private var _tabla:Boolean;
+
+        public function get tieneGanadorTabla():Boolean {
+            return _tabla;
+        };
+        public function set tieneGanadorTabla(value:Boolean):void {
+            _tabla = value;
+            marcaTabla.visible = value;
+        }
+
+        private var _remate:Boolean;
+
+        public function get tieneGanadorRemate():Boolean {
+            return _remate;
+        }
+
+        public function set tieneGanadorRemate(value:Boolean):void {
+            _remate = value;
+            marcaRemate.visible = value;
+        }
+
+        public function ganadorRepetido():void {
+            dibujarAlerta("No Enviado: Ganador ya asignado..");
+        }
+
+        public function tablaRepetida():void {
+            dibujarAlerta("No Enviado: Ganador ya asignado..");
+        }
+
+        public function dividendoInvalido():void {
+            dibujarAlerta("No Enviado: Dividendo Inválido..");
+        }
+
+        private function dibujarAlerta(msg:String):void {
+            r = new Rect;
+            lbl = new Label;
+            r.fill = new SolidColor(0xFF0000, 0.9);
+            r.percentHeight = r.percentWidth = 100;
+            this.addElement(r);
+            lbl.text = msg;
+            lbl.verticalCenter = lbl.horizontalCenter = 0;
+            lbl.setStyle("fontSize", 30);
+            lbl.setStyle("fontFamily", "Verdana");
+            lbl.setStyle("fontWeight", "bold");
+            this.addElement(lbl);
+            var t:Timer = new Timer(3000, 1);
+            t.addEventListener(TimerEvent.TIMER_COMPLETE, eliminarAdvertencia, false, 0, true);
+            t.start();
+        }
+
+        protected function eliminarAdvertencia(event:TimerEvent):void {
+            this.removeElement(r);
+            this.removeElement(lbl);
+        }
+
+        protected function btnReiniciar_clickHandler(event:MouseEvent):void {
+            var img:Image = event.currentTarget as Image;
+            if (int(img.name) == 0) {
+                tieneGanador = false;
+            }
+            if (int(img.name) == 1) {
+                tieneGanadorTabla = false;
+            }
+            if (int(img.name) == 2) {
+                tieneGanadorRemate = false;
+            }
+            reiniciarGanadorHandler.dispatch(banca, int(img.name));
+            img.visible = false;
+        }
+
+        protected function reiniciarOver(event:MouseEvent):void {
+            var i:int = getElementIndex(event.currentTarget as IVisualElement);
+            getElementAt(i + 1).visible = true;
+        }
+
+        protected function reiniciarOut(event:MouseEvent):void {
+            (event.currentTarget as Image).visible = false;
+        }
+        ]]>
+	</fx:Script>
+	<s:CheckBox id="lblBanca" left="5" right="273" height="39" label="Banca" fontFamily="Verdana"
+				fontSize="20" selected="true" verticalCenter="0"/>
+	<s:TextInput id="txtDiv" y="0" right="5" width="100" height="50" fontFamily="Verdana"
+				 fontSize="30" fontWeight="bold" maxChars="5" prompt="#1" text="0"
+				 height.empate="25" fontSize.empate="18" fontWeight.empate="normal"
+				 right.State1="5" height.State1="50" fontSize.State1="24" fontWeight.State1="normal"/>
+	<s:TextInput id="txtDiv0" includeIn="empate" y="24" right="5" width="100" height="25" itemCreationPolicy="immediate"
+				 fontFamily="Verdana" fontSize="18" fontWeight="normal" maxChars="5" text="0" prompt="#2"/>
+	
+	<s:Image id="marcaGanador" name="grefresh" visible="false" right="117" width="32" height="32" rollOver="reiniciarOver(event)" smooth="true" source="images/trofeo.png" verticalCenter="0"/>
+	<s:Image id="grefresh" right="117" width="32" height="32" alpha=".8" rollOut="reiniciarOut(event)" buttonMode="true"
+			 smooth="true" source="images/refresh.png" verticalCenter="0" visible="false" name="0" click="btnReiniciar_clickHandler(event)"/>
+	
+	<s:Image id="marcaTabla" name="trefresh" visible="false" right="153" width="32" height="32" rollOver="reiniciarOver(event)" smooth="true" source="images/Tablas.png" verticalCenter="0"/>
+	<s:Image id="trefresh" right="153" width="32" height="32" alpha=".8" rollOut="reiniciarOut(event)" buttonMode="true"
+			 smooth="true" source="images/refresh.png" verticalCenter="0" visible="false" name="1" click="btnReiniciar_clickHandler(event)"/>
+	
+	<s:Image right="193" name="rrefresh" width="32" height="32" smooth="true" id="marcaRemate" rollOver="reiniciarOver(event)" source="images/remateTablas.png" verticalCenter="0" visible="false"/>
+	<s:Image id="rrefresh" right="193" width="32" height="32" alpha=".8" rollOut="reiniciarOut(event)" buttonMode="true"
+			 smooth="true" source="images/refresh.png" verticalCenter="0" visible="false" name="2" click="btnReiniciar_clickHandler(event)"/>
+</s:SkinnableContainer>

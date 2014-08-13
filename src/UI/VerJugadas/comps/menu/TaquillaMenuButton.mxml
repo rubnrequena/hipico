@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" backgroundAlpha=".8" backgroundColor="0x000000"
+					  currentState="closed" fontSize="16" fontFamily="Verdana"
+					  rollOut="skinnablecontainer1_rollOutHandler(event)"
+					  rollOver="skinnablecontainer1_rollOverHandler(event)"
+					  creationComplete="skinnablecontainer1_creationCompleteHandler(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			protected function button1_clickHandler(event:MouseEvent):void {
+				currentState = currentState=="opened"?"closed":"opened";
+			}
+			private var autoClose:Timer;
+			protected function skinnablecontainer1_rollOutHandler(event:MouseEvent):void {
+				if (currentState=="opened") autoClose.start();
+			}
+			protected function skinnablecontainer1_rollOverHandler(event:MouseEvent):void {
+				autoClose.reset();
+			}
+			protected function skinnablecontainer1_creationCompleteHandler(event:FlexEvent):void {
+				autoClose = new Timer(3000,1);
+				autoClose.addEventListener(TimerEvent.TIMER_COMPLETE,autoClose_close);
+			}
+			protected function autoClose_close(event:TimerEvent):void {
+				currentState="closed";
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:states>
+		<s:State name="closed"/>
+		<s:State name="opened"/>
+	</s:states>
+	<s:layout>
+		<s:VerticalLayout gap="3"/>
+	</s:layout>
+	
+	<s:Button styleName="verJugadas_top" label="Taquillas" icon="images/iconos2/taquillas_32.png" width="135" alpha.opened=".5" click="button1_clickHandler(event)"/>
+	
+	<s:Button id="btnAbreTaquillas" width="135" label="Abrir" icon="images/iconos2/lock_open_32.png"
+			  styleName="verJugadas_top" includeIn="opened" itemCreationPolicy="immediate"/>
+	<s:Button id="btnCierraTaquillas" icon="images/iconos2/lock_close_32.png" styleName="verJugadas_top" label="Cerrar" width="135"
+			  includeIn="opened" itemCreationPolicy="immediate"/>
+	<mx:HRule width="100%" height="2" includeIn="opened"/>
+	<s:Button id="btnAdminTaquillas" width="135" label="Admin" includeIn="opened" itemCreationPolicy="immediate"
+			  icon="images/iconos2/taquillas_32.png" styleName="verJugadas_top"/>
+</s:SkinnableContainer>

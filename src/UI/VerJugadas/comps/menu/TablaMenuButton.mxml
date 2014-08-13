@@ -1,0 +1,50 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  currentState="closed"
+		  backgroundAlpha=".8" backgroundColor="0x000000"
+		  rollOut="skinnablecontainer1_rollOutHandler(event)"
+		  rollOver="skinnablecontainer1_rollOverHandler(event)"
+		  creationComplete="skinnablecontainer1_creationCompleteHandler(event)">
+	
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+			protected function button1_clickHandler(event:MouseEvent):void {
+				currentState = currentState=="opened"?"closed":"opened";
+			}
+			private var autoClose:Timer;
+			protected function skinnablecontainer1_rollOutHandler(event:MouseEvent):void {
+				if (currentState=="opened") autoClose.start();
+			}
+			protected function skinnablecontainer1_rollOverHandler(event:MouseEvent):void {
+				autoClose.reset();
+			}
+			protected function skinnablecontainer1_creationCompleteHandler(event:FlexEvent):void {
+				autoClose = new Timer(3000,1);
+				autoClose.addEventListener(TimerEvent.TIMER_COMPLETE,autoClose_close);
+			}
+			protected function autoClose_close(event:TimerEvent):void {
+				currentState="closed";
+			}
+			
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="closed"/>
+		<s:State name="opened"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:layout>
+		<s:VerticalLayout gap="3"/>
+	</s:layout>
+	<s:Button label="Tablas" click="button1_clickHandler(event)" icon="images/iconos2/tablas_32.png" styleName="verJugadas_top"
+			  width="124" alpha.opened=".5"/>
+	<s:Button id="btnTablas_webLoad" includeIn="opened" width="124" label="Cargar"
+			  icon="images/cloud.png" styleName="verJugadas_top" itemCreationPolicy="immediate"/>
+	<s:Button id="btnTablas_nvaTabla" includeIn="opened" width="124" label="Nuevas"
+			  icon="images/add32.png" styleName="verJugadas_top" itemCreationPolicy="immediate"/>
+</s:SkinnableContainer>

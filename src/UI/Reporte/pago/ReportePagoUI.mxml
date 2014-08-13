@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vistas:VistaUI xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" fontFamily="Verdana" autoClose="true" backgroundColor="0xffffff"
+					  xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" xmlns:UI="UI.*" xmlns:vistas="vistas.*">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Group left="10" right="10" top="55" bottom="0">
+		<s:HGroup height="20" right="0" fontFamily="Verdana" fontSize="20" textAlign="center">
+			<s:Label width="130" text="Jugado"/>
+			<s:Label width="130" text="Premios"/>
+			<s:Label width="130" text="Balance"/>
+		</s:HGroup>
+		<s:List id="listReporte" x="0" top="25" bottom="5" width="100%" itemRenderer="UI.Reporte.IReporteBanca">
+		</s:List>
+	</s:Group>
+	<s:Button id="btnImprimir" x="191" y="44" height="30" label="Imprimir" icon="images/printer16.png" styleName="verJugadas_top"/>
+	<s:Button id="btnEstadisticas" x="291" y="44" height="30" label="Estadisticas Generales" icon="images/detalles.png" styleName="verJugadas_top"/>
+	<s:Button id="btnBuscar" x="101" y="44" height="30" label="Buscar" icon="images/zoom.png"
+			  styleName="verJugadas_top"/>
+	<s:Button x="10" y="44" width="83" height="30" label="Cerrar" chromeColor="#FF885F" id="btnCerrar"/>
+	<s:Label y="8" color="#696969" fontSize="30" horizontalCenter="0" text="Reporte de Pagos"/>
+</vistas:VistaUI>

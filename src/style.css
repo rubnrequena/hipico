@@ -1,0 +1,47 @@
+/* CSS file */
+@namespace s "library://ns.adobe.com/flex/spark";
+@namespace mx "library://ns.adobe.com/flex/mx";
+@namespace skins "skins.*";
+@namespace Reporte "UI.Reporte.*";
+
+.btn-licencia, .input-licencia, .label-licencia {
+	fontFamily:"Verdana";
+	fontSize:16;
+}
+.cont-licencia {
+	backgroundColor:#ffffff;
+	backgroundAlpha:.7;
+}
+s|Button.mainMenu
+{
+	bgAlpha:.5;
+	chromeColor: #418f94;
+	iconPlacement: top;
+	fontFamily:"Courier New";
+	color:#FFFFFF;
+}
+.verJugadas_top
+{
+	fontFamily:"Verdana";
+	chromeColor: #3A768F;
+	color:#ffffff;
+}
+s|Button {
+	skinClass: ClassReference("skins.W8Button");
+}
+.modalTitulo {
+	paddingTop:5;
+	paddingLeft:5;
+	paddingRight:5;
+	fontSize:24;
+}
+Reporte|ReporteFechaModal {
+	fontSize:16;
+}
+.closeButton {
+	chromeColor:#FF885F;
+}
+.defaultItem {
+	verticalAlign:middle;
+	fontSize:16;
+}

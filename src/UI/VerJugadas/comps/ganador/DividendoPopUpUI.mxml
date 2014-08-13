@@ -1,0 +1,17 @@
+<?xml version="1.0"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009" xmlns:s="library://ns.adobe.com/flex/spark"
+        width="200" fontSize="20" backgroundColor="0x54795c">
+    <s:layout>
+        <s:VerticalLayout paddingTop="3" paddingLeft="3" paddingRight="3" paddingBottom="3"/>
+    </s:layout>
+    <s:states>
+        <s:State name="normal"/>
+        <s:State name="empate"/>
+    </s:states>
+    <s:HGroup gap="4" fontSize="30">
+        <s:TextInput id="dividendoInput" width="194" width.empate="95"/>
+        <s:TextInput id="dividendoInput2" includeIn="empate" width="95"/>
+    </s:HGroup>
+	<s:Button id="dividendoButton" width="194" styleName="verJugadas_top" label="Calcular"/>
+	<s:Button id="cerrarButton" width="194" styleName="closeButton" label="Cancelar"/>
+</s:SkinnableContainer>

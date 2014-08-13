@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<mx:Window xmlns:fx="http://ns.adobe.com/mxml/2009"
+		   xmlns:s="library://ns.adobe.com/flex/spark"
+		   xmlns:mx="library://ns.adobe.com/flex/mx"
+		   xmlns:Clases="Clases.*"
+		   xmlns:Comps="Comps.*"
+		   width="1000" height="700" backgroundColor="#CCCCCC"
+		   creationComplete="window1_creationCompleteHandler(event)" currentState="Jugadas"
+		   layout="absolute" title="Ver Jugadas" xmlns:menu="UI.VerJugadas.comps.menu.*" xmlns:UI="Comps.verJugadas.UI.*">
+	
+	<fx:Script source="admTaquillasAS.as"/>
+	<fx:Script source="admTaquillasPena.as"/>
+	<mx:states>
+		<s:State name="Jugadas"/>
+	</mx:states>
+	<fx:Declarations>
+		<s:RadioButtonGroup id="radioGrupo"/>
+		<s:ArrayList id="arl">
+			<s:GridColumn dataField="Numero" headerText="Numero" width="40"></s:GridColumn>
+			<s:GridColumn dataField="Nombre" headerText="Nombre"></s:GridColumn>
+			<s:GridColumn dataField="Cantidad" headerText="tablas" width="40"></s:GridColumn>
+			<s:GridColumn dataField="Monto" headerText="Jugado" width="70"></s:GridColumn>
+		</s:ArrayList>
+		<s:ArrayList id="ganadorColumnas">
+			<s:GridColumn dataField="Numero" headerText="Numero" width="40"></s:GridColumn>
+			<s:GridColumn dataField="Nombre" headerText="Nombre"></s:GridColumn>
+			<s:GridColumn dataField="Monto" headerText="Jugado" width="70"></s:GridColumn>
+		</s:ArrayList>
+	</fx:Declarations>
+	
+	<s:Group width="100%" height="100%" id="cpanel">
+		<s:Image source="images/iconos2/bg3.jpg" width="100%" height="100%" x="0" y="0" scaleMode="stretch" smooth="true"/>	
+		<s:Group id="panel_izq" left="0" top="238" bottom="0" width="270" chromeColor="#FF9B4A">
+			<s:List id="listGanadorAgrupado" x="0" top="0" bottom="40" width="270" itemRenderer="Comps.verJugadas.UI.monitorEjemplares.IGanadorAgrupado" contentBackgroundColor="#F9EAD2">
+			</s:List>
+			<s:List id="listTablaAgrupado" x="0" top="0" bottom="40" width="270" itemRenderer="Comps.verJugadas.UI.monitorEjemplares.ITablaAgrupado" contentBackgroundColor="#F9EAD2">
+			</s:List>
+			<s:List id="dgRetirados" x="0" top="0" bottom="40" width="270"
+					contentBackgroundColor="#F9EAD2" dataProvider="{ejemplares}" fontSize="16"
+					itemRenderer="Comps.verJugadas.UI.monitorEjemplares.IEjemplarMonitor">
+			</s:List>
+			<s:Button x="0" bottom="0" width="90" height="40" label="Ejemplares" id="btnMostrar_Ejemplares" enabled="false" click="mostrarEjemplares(event)"/>
+			<s:Button x="90" bottom="0" width="90" height="40" label="Ganador" id="btnMostrar_GanadorAgrupado" click="mostrarGanadorAgrupado(event)"/>
+			<s:Button x="180" bottom="0" width="90" height="40" label="Tablas" id="btnMostrar_TablasAgrupado" click="mostrarTablasAgrupado(event)"/>
+		</s:Group>
+		<s:Group x="5" y="47" width="254" fontWeight="bold" height="157" color="0xffffff" fontFamily="Verdana">
+			<s:Label fontWeight="normal" styleName="Titulo" text="Carrera Actual"/>
+			<mx:Form x="0" y="1" height="86" verticalScrollPolicy="off" width="244" verticalGap="0">
+				<mx:FormItem label="Fecha:" >
+					<s:Label id="lblFecha" />
+				</mx:FormItem>
+				<mx:FormItem label="Hipodromo:">
+					<s:Label id="lblHipo" />
+				</mx:FormItem>
+				<mx:FormItem label="Carrera:">
+					<s:Label id="lblCarrera" />
+				</mx:FormItem>
+			</mx:Form>
+			
+			<s:Form x="0" y="76" width="244" height="81">
+				<UI:ADMTaquillasQuickView id="adm_tqv"/>
+				<s:FormItem width="100%" height="15" label="Bancas:">
+					<s:layout>
+						<s:HorizontalLayout/>
+					</s:layout>
+					<s:Label text="0" id="cn_bancaTotal" toolTip="Bancas registradas"/>
+					<s:Label text="/"/>
+					<s:Label text="0" id="cn_bancaConectadas" toolTip="Bancas conectadas"/>
+				</s:FormItem>
+				<s:FormItem width="100%" height="15" label="Ganadores:">
+					<s:layout>
+						<s:HorizontalLayout/>
+					</s:layout>
+					<s:Label text="0" id="cn_ganadoresAbiertas" toolTip="Bancas con taquillas de ganadores abiertas"/>
+					<s:Label text="/"/>
+					<s:Label text="0" id="cn_ganadoresCerradas" toolTip="Bancas con taquillas de ganadores cerradas"/>
+				</s:FormItem>
+				<s:FormItem width="100%" height="15" label="Tablas:">
+					<s:layout>
+						<s:HorizontalLayout/>
+					</s:layout>
+					<s:Label text="0" id="cn_tablasAbiertas" toolTip="Bancas con taquillas de tablas abiertas"/>
+					<s:Label text="/"/>
+					<s:Label text="0" id="cn_tablasCerradas" toolTip="Bancas con taquillas de tablas cerradas"/>
+				</s:FormItem>
+			</s:Form>
+		</s:Group>
+		<s:SkinnableContainer id="contenedorDerecho" y="50" left="284" right="0" height="100%" chromeColor="#8FC7DF">
+			<s:HGroup width="100%" height="100%" fontSize="20" gap="14" name="Penas">
+				<s:Group width="50%" height="100%">
+					<s:Scroller left="0" right="0" top="0" bottom="55">
+						<s:VGroup width="100%" height="100%" variableRowHeight="true" id="vTablas">
+						</s:VGroup>
+					</s:Scroller>
+					<mx:FormItem left="5" bottom="10" height="30" label="TOTAL TABLAS:" color="#FFFFFF"
+								 fontFamily="Verdana" fontSize="26" fontWeight="bold">
+						<s:Label text="0.00" id="labelTotalTablas"/>
+					</mx:FormItem>
+					
+					
+				</s:Group>
+				<s:Group width="50%" height="100%">
+					<s:Scroller left="0" right="0" top="0" bottom="55">
+						<s:VGroup  id="vGanador" width="100%">
+							
+						</s:VGroup>
+					</s:Scroller>
+					<mx:FormItem right="10" bottom="10" height="30" label="TOTAL GANADOR:" color="#FFFFFF"
+								 fontFamily="Verdana" fontSize="26" fontWeight="bold">
+						<s:Label text="0.00" id="labelTotalGanador"/>
+					</mx:FormItem>
+					
+					
+				</s:Group>
+			</s:HGroup>
+		</s:SkinnableContainer>
+		<s:SkinnableContainer id="topMenu" backgroundAlpha="0.5" backgroundColor="#a9bf71" left="0" right="0" height="42" top="0"
+							  fontSize="18" fontFamily="Verdana" color="0xFFFFFF">
+			<s:layout>
+				<s:HorizontalLayout paddingTop="3" paddingLeft="3" paddingRight="3" paddingBottom="3"/>
+			</s:layout>
+			<menu:CarreraMenuButton id="carreraMenu"/>
+			<menu:TaquillaMenuButton id="taquillasMenu"/>
+			<menu:TablaMenuButton id="tablasMenu" />
+			<s:Button id="botonRemate" label="Remate" click="remateMenu_btnRemate_clickHandler(event)" icon="images/remate32.png" styleName="verJugadas_top"/>
+			<s:VGroup fontSize="15">
+				<s:Label id="_noticiaSistema" buttonMode="true"/>
+				<s:Label id="_noticiaVentas" buttonMode="true"/>
+			</s:VGroup>
+		</s:SkinnableContainer>
+	</s:Group>
+</mx:Window>

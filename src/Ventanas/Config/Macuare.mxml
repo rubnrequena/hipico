@@ -1,0 +1,92 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:NavigatorContent xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					xmlns:s="library://ns.adobe.com/flex/spark" backgroundColor="#F9EAD2"
+					xmlns:mx="library://ns.adobe.com/flex/mx" width="400" height="300" styleName="titulo"
+					creationComplete="navigatorcontent1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.events.FlexEvent;
+
+			private var chances:Array;
+			
+			protected function navigatorcontent1_creationCompleteHandler(event:FlexEvent):void {
+				chances = Global.macuare.chances;
+				if (chances) {
+					min1.text = chances[0].minimo;
+					min2.text = chances[1].minimo;
+					min3.text = chances[2].minimo;
+					
+					max1.text = chances[0].maximo;
+					max2.text = chances[1].maximo;
+					max3.text = chances[2].maximo;
+				}
+			}
+			
+			protected function btnGuardar_clickHandler(event:MouseEvent):void {
+				chances[0].minimo = min1.text;
+				chances[1].minimo = min2.text;
+				chances[2].minimo = min3.text;
+				
+				chances[0].maximo = max1.text;
+				chances[1].maximo = max2.text;
+				chances[2].maximo = max3.text;
+				
+				Global.macuare.chances = chances;
+				
+				btnGuardar.label = "Guardando";
+				btnGuardar.styleName = "guardado";
+				frm.enabled=false;
+				setTimeout(function ():void {
+					btnGuardar.label = "Guardar";
+					btnGuardar.styleName = "normal";
+					frm.enabled=true;
+				},1500);
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		
+		.titulo {
+			fontFamily:"Verdana";
+			fontSize:18;
+		}
+		
+		.normal {
+			
+		}
+		.guardado {
+			chromeColor:#88ff31;
+		}
+	</fx:Style>
+	
+	<s:Label x="10" y="10" text="Adm. Chances"/>
+	
+	<s:Form x="10" y="30" id="frm">
+		<s:FormItem label="1 Chance:">
+			<s:HGroup >
+				<s:TextInput width="50" id="min1" /> <s:TextInput id="max1" width="50"/>
+			</s:HGroup>
+		</s:FormItem>
+		<s:FormItem label="2 Chance:">
+			<s:HGroup >
+				<s:TextInput width="50" id="min2"  /> <s:TextInput id="max2" width="50"/>
+			</s:HGroup>
+		</s:FormItem>
+		<s:FormItem label="3 Chance:">
+			<s:HGroup >
+				<s:TextInput width="50" id="min3" /> <s:TextInput id="max3" width="50"/>
+			</s:HGroup>
+		</s:FormItem>
+		<s:Group width="236">
+			<s:Button id="btnGuardar" right="0" label="Aceptar"
+					  click="btnGuardar_clickHandler(event)" icon="images/accept32.png"
+					  styleName="verJugadas_top"/>
+		</s:Group>
+	</s:Form>
+</s:NavigatorContent>

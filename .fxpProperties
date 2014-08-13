@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<fxpProperties abbreviated="false" authoringTool="Flex Builder" parentProject="e83caf23-af85-4143-99cb-2b848361cadc" projectUUID="e83caf23-af85-4143-99cb-2b848361cadc" pureCatalystProject="false" sdkVersion="4.6.0" uuid="294e5bbd-a06b-4e4d-8f9c-8e65557e230b" version="15">
+  <projects>
+    <project filename="libHipico.fxpl" position="2" projectUUID="dc121996-700f-4ec3-8411-c43c7c066643" uuid="294e5bbd-a06b-4e4d-8f9c-8e65557e230b"/>
+    <project filename="Registros.fxpl" position="3" projectUUID="90a08e5d-0c7c-478a-aa97-bebd4b303edc" uuid="294e5bbd-a06b-4e4d-8f9c-8e65557e230b"/>
+    <project filename="SRSocket.fxpl" position="4" projectUUID="9d8cf474-5b59-4897-8595-9d8c02340e28" uuid="294e5bbd-a06b-4e4d-8f9c-8e65557e230b"/>
+  </projects>
+  <src/>
+  <swc>
+    <linked location="sdkPlaceHolder" path="sdkPlaceHolder" position="0" uuid="294e5bbd-a06b-4e4d-8f9c-8e65557e230b"/>
+    <linked location="C:/Documents and Settings/CYBER/Adobe Flash Builder 4/HIPICO/libs" path="/libs" position="1" uuid="86a32fa2-0f71-449e-8305-2736a5189f51"/>
+  </swc>
+  <misc/>
+  <theme/>
+  <mxmlFormattingPrefs groupAttributesByState="true" maxLineWidth="100" mxmlAlignAttributes="true" mxmlAttributeOrder="id,userLabel,includeIn,excludeFrom,visible,x,y,z,left,right,top,bottom,width,height,minWidth,minHeight,maxWidth,maxHeight,label" mxmlKeepAttributeValuesOrganized="true"/>
+</fxpProperties>

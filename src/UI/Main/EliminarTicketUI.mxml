@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="400" height="230" fontFamily="Verdana" title="Eliminar Ticket">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Button x="0" bottom="0" width="200" label="Eliminar" chromeColor="#70B2EE" icon="images/accept.png" name="btnOK"/>
+	<s:Button x="198" bottom="0" width="200" label="No Eliminar" icon="images/delete.png" name="btnCancel"/>
+	<s:Label id="banca" width="400" fontWeight="bold" paddingBottom="5" paddingLeft="5"
+			 paddingRight="5" paddingTop="5" text="_banca" textAlign="center"/>
+	<s:Form x="0" y="16" width="200">
+		<s:FormItem label="Taquilla:">
+			<s:Label text="_taquilla" id="taquilla"/>
+		</s:FormItem>
+		<s:FormItem label="Ticket:">
+			<s:Label text="_ticket" id="ticket"/>
+		</s:FormItem>
+		<s:FormItem label="Monto:">
+			<s:Label text="_monto" id="monto"/>
+		</s:FormItem>
+	</s:Form>
+	<s:Form x="200" y="16" width="200">
+		<s:FormItem label="Fecha:">
+			<s:Label text="_fecha" id="fecha"/>
+		</s:FormItem>
+		<s:FormItem label="Hipodromo:">
+			<s:Label text="_hipodromo" id="hipodromo"/>
+		</s:FormItem>
+		<s:FormItem label="Carrera:">
+			<s:Label text="_carrera" id="carrera"/>
+		</s:FormItem>
+	</s:Form>
+</s:Panel>

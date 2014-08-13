@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:TitleWindow xmlns:fx="http://ns.adobe.com/mxml/2009"
+			   xmlns:s="library://ns.adobe.com/flex/spark"
+			   xmlns:mx="library://ns.adobe.com/flex/mx"
+			   xmlns:local="*"
+			   xmlns:Clases="Clases.*"
+			   xmlns:UI="UI.*"
+			   width="800" height="600"
+			   creationComplete="titlewindow1_creationCompleteHandler(event)" defaultButton="{add}"
+			   fontFamily="Verdana" title="Agregar Carreras">			   
+	
+	<fx:Script>
+		<![CDATA[
+			import UI.Noticia;
+			private var noticia:Noticia;
+								
+			
+			protected function btnLeerCarreras_file_clickHandler(event:MouseEvent):void {
+				var f:File  = new File;
+				var fileTypes:Array = [];
+				fileTypes.push(new FileFilter("Archivo de carrera (*.hip)","*.hip"));
+				f.addEventListener(Event.SELECT,leerCarreras_openHandler);
+				f.browseForOpen("Seleccione archivo de carreras",fileTypes);
+			}
+			
+			protected function leerCarreras_openHandler(event:Event):void {
+				var f:File = event.currentTarget as File;
+				var fileData:String="";
+				var fs:FileStream = new FileStream;
+				var dataCarreras:Array;
+				var i:int;
+				
+				fs.open(f,FileMode.READ);
+				fileData = fs.readMultiByte(fs.bytesAvailable,"utf-8");
+				dataCarreras = JSON.parse(fileData,null) as Array;
+				var fecha:String = f.name.split(".").shift();
+				for (i = 0; i < dataCarreras.length; i++) {
+					Global.ganador.carreras_padre.insertar(fecha,dataCarreras[i].hipodromo,dataCarreras[i].ejemplares);
+					Global.banca.carreras.insertar(fecha,dataCarreras[i].hipodromo,dataCarreras[i].ejemplares);
+				}
+				fs.close();
+				
+				info = new infoCarrera({Fecha:fecha,Hipodromo:dataCarreras[0].hipodromo,Carrera:1},"YYYY-MM-DD");
+				cFecha.selectedDate = Misc.formatDate(fecha,"YYYY-MM-DD");
+				for (i = 0; i < cHipo.dataProvider; i++) {
+					if (cHipo.dataProvider.getItemAt(i).Hipodromo== dataCarreras[0].hipodromo)
+						cHipo.selectedIndex = i;
+				}
+				
+				Cargar();
+				fs=null; f=null;fileData=null;dataCarreras=null;
+			}
+			
+		]]>
+	</fx:Script>
+	
+	<fx:Declarations>
+	</fx:Declarations>
+	<fx:Script source="Carreras_as.as"/>
+	<mx:Form x="0" y="10" width="276" height="142" horizontalScrollPolicy="off">
+		<mx:FormItem label="Fecha:">
+			<UI:myDate id="cFecha" change="cFecha_changeHandler(event)"/>
+		</mx:FormItem>
+		<mx:FormItem label="Carrera:" direction="horizontal">
+			<s:NumericStepper minimum="1" maximum="20" id="cCarrera" change="cCarrera_changeHandler(event)" width="65"/>
+			
+		</mx:FormItem>
+		<mx:FormItem label="Numero:" direction="horizontal">
+			<s:NumericStepper minimum="1" maximum="99" id="cNumero" width="65"/>
+			<s:CheckBox id="auto" label="Auto Inc." selected="true" toolTip="Esta casilla le permite activar o desactivar el auto incremento del numero de partida del ejemplar."/>
+		</mx:FormItem>
+		<mx:FormItem width="242" label="Hipodromo:">
+			<s:DropDownList id="cHipo" width="138" change="hipodromos_changeHandler(event)" labelField="Hipodromo" requireSelection="true"/>
+		</mx:FormItem>
+	</mx:Form>
+	<mx:AdvancedDataGrid designViewDataType="tree" id="dgCarrera" top="160" left="7" right="10" bottom="10">
+		<mx:columns>
+			<!--<mx:AdvancedDataGridColumn headerText="Carrera" width="80" dataField="Carrera"/>-->
+			<mx:AdvancedDataGridColumn headerText="Numero" width="100" dataField="Numero"/>
+			<mx:AdvancedDataGridColumn headerText="Nombre del Caballo" dataField="Nombre"/>
+			<mx:AdvancedDataGridColumn width="50">
+				<mx:itemRenderer>
+					<fx:Component>
+						<mx:Button label="X" click="outerDocument.Eliminar()" toolTip="Eliminar caballo de la carrera"/>
+					</fx:Component>
+				</mx:itemRenderer>
+			</mx:AdvancedDataGridColumn>
+		</mx:columns>
+		<mx:dataProvider>
+			<mx:GroupingCollection2 id="g2" source="{Carrera}" >
+				<mx:Grouping>
+					<mx:GroupingField  name="Carrera" groupingFunction="funcionGrupo"/>
+				</mx:Grouping>
+			</mx:GroupingCollection2>
+		</mx:dataProvider>
+	</mx:AdvancedDataGrid>
+	<s:ComboBox id="busq" x="285" y="25" width="364" dataProvider="{ejemplares}" fontSize="30"
+				labelField="Nombres" openOnInput="false" paste="combobox1_pasteHandler(event)"/>
+	<s:Label x="284" y="10" text="Buscar y/o Agregar:"/>
+	<s:Button id="add" x="656" y="18" click="add_clickHandler(event)"
+			  enabled="{cFecha.text.length&gt;0}" fontSize="20" icon="images/accept.png"
+			  skinClass="skins.W8Button" toolTip="Agregar Caballo"/>
+	<s:Button y="100" label="Enviar Carreras" id="btnEnviarCarreras" right="78"
+			   toolTip="Enviar todas las carreras a las taquillas" enabled="{Carrera.length>0}" icon="images/mail_send.png"/>
+	<s:NumericStepper id="enviarCarrera" y="100" right="10" width="70" height="52" fontSize="30"
+					  fontWeight="bold" maximum="99" minimum="0" toolTip="Indica el numero de carrera a guardar. El valor 0 indica que se enviaran todas las carreras del día."/>
+	<s:Button x="499" y="100" width="61" height="52" label="Button" icon="images/delete.png" toolTip="Eliminar Carrera" enabled="{Carrera.length>0}" id="btnBorrarCarrera" click="btnBorrarCarrera_clickHandler(event)"/>
+	<s:Button x="284" y="108" label="Leer Carreras" icon="images/iconos2/leer_carreras.png" id="btnLeerCarreras_file" click="btnLeerCarreras_file_clickHandler(event)"/>
+	<!--<s:Button x="284" y="131" label="Limpiar Carreras Enviadas" id="limpiarBoton" click="limpiarBotonClick(event)"/>-->
+</s:TitleWindow>

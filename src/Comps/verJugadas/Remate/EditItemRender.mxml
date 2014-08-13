@@ -1,0 +1,177 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009"
+				xmlns:s="library://ns.adobe.com/flex/spark"
+				xmlns:mx="library://ns.adobe.com/flex/mx"
+				autoDrawBackground="true"
+				creationComplete="itemrenderer1_creationCompleteHandler(event)" xmlns:layout="layout.*">
+	<fx:Script>
+		<![CDATA[
+			import Common.Misc;
+			
+			import events.GridEditorEvent;
+			
+			import mx.core.IVisualElement;
+			import mx.core.UIComponent;
+			import mx.events.FlexEvent;
+			import mx.graphics.SolidColor;
+			
+			import spark.components.TextInput;
+			import spark.events.GridItemEditorEvent;
+			import spark.events.IndexChangeEvent;
+			import spark.primitives.Rect;
+			
+			private var _isEditing:Boolean=false;
+			public function get isEditing():Boolean { return _isEditing; }
+
+			override public function set data(value:Object):void {
+				super.data = value;
+				if (value) {
+					numero.text = Misc.fillZeros(value.Numero,2);
+					nombre.text = value.Nombre;
+					setStyle("color",value.Retirado?"#FFFFFF":"#000000");
+					casillas = (owner as RemateList).casillas;
+					bloqueado.visible = value.Bloqueado;
+					retirado.visible = value.Retirado;
+					var i:int; var c:int=0;
+					for (i = 1; i < (owner as RemateList).casillas+1; i++) {
+						if (value.Bloqueado || value.Retirado) {
+							(hcasillas.getElementAt(c) as Label).setStyle("backgroundAlpha",0);
+							(hcasillas.getElementAt(c+1) as Label).setStyle("backgroundAlpha",0);
+						} else {
+							(hcasillas.getElementAt(c) as Label).setStyle("backgroundAlpha",1);
+							(hcasillas.getElementAt(c+1) as Label).setStyle("backgroundAlpha",1);
+						}
+						(hcasillas.getElementAt(c) as Label).text = value["Monto"+i];
+						(hcasillas.getElementAt(c+1) as Label).text = value["Mesa"+i];
+						c += 2;
+					}
+				}
+			}
+			public function setWidth (m:int,j:int):void {
+				for (var i:int = 0; i < hcasillas.numElements; i++) {
+					if (i%2==0) {
+						hcasillas.getElementAt(i).width = m;
+					} else {
+						hcasillas.getElementAt(i).width = j;
+					}
+				}
+			}
+			public function set montoWidth (value:int):void {
+				for (var i:int = 0; i < hcasillas.numElements; i++) {
+					if (i%2==0) hcasillas.getElementAt(i).width = value;
+				}
+			}
+			public function set mesaWidth (value:int):void {
+				for (var i:int = 0; i < hcasillas.numElements; i++) {
+					if (i%2!=0) hcasillas.getElementAt(i).width = value;
+				}
+			}
+			private var _casillas:int;
+			private function set casillas (value:int):void {
+				if (_casillas!=value) {
+					_casillas=value;
+					hcasillas.removeAllElements();
+					var lbl:Label;
+					for (var i:int = 1; i < value+1; i++)  {
+						lbl = new Label;
+						//lbl.text = data["Monto"+i];
+						lbl.width = (owner as RemateList).montoWidth;
+						lbl.name = "Monto"+i;
+						lbl.percentHeight = 100;
+						lbl.setStyle("backgroundColor","#f2fb95");
+						lbl.setStyle("verticalAlign","middle");
+						lbl.maxDisplayedLines = 1;
+						hcasillas.addElement(lbl);
+						
+						lbl = new Label;
+						lbl.maxDisplayedLines = 1;
+						lbl.width = (owner as RemateList).mesaWidth;
+						lbl.percentHeight = 100;
+						//lbl.text = data["Mesa"+i];
+						lbl.name = "Mesa"+i;
+						lbl.setStyle("backgroundColor","#ffb74f");
+						lbl.setStyle("verticalAlign","middle");
+						hcasillas.addElement(lbl);
+					}
+				}
+			}
+			
+			private var textEditor:TextInput;
+			private var editing:Label;
+			private var editingCol:int;
+			protected function editLabel_clickHandler(event:MouseEvent):void {
+				dispatchEvent(new Event("saveSesion",true,false));
+				editColumna = hcasillas.getElementIndex(event.target as IVisualElement);
+			}
+			public function saveSession():void {
+				if (textEditor) {
+					var e:GridEditorEvent = new GridEditorEvent(GridEditorEvent.CELL_SESSION_SAVING,itemIndex,editingCol,textEditor.text,editing.text,editing.name,true,true);
+					dispatchEvent(e);
+					if (!e.isDefaultPrevented()) {
+						editing.text = e.newValue;
+						data[editing.name] = e.newValue;
+						hcasillas.removeElementAt(e.col);
+						hcasillas.addElementAt(editing,e.col);
+						_isEditing=false;
+						dispatchEvent(new GridEditorEvent(GridEditorEvent.CELL_SESSION_SAVED,e.row,e.col,e.newValue,e.oldValue,e.columnName,true));
+					}
+				}
+			}
+			public function setValor(col:int,valor:String):void {
+				(hcasillas.getElementAt(col) as Label).text = valor;
+			}
+			public function set editColumna (value:int):void {
+				if (value>-1 && value<hcasillas.numElements && data.Retirado==false) {
+					editingCol = value
+					editing = hcasillas.removeElementAt(value) as Label;
+					textEditor.width = editing.width;
+					textEditor.text = editing.text;
+					textEditor.height = height-2;
+					hcasillas.addElementAt(textEditor,editingCol);
+					textEditor.setFocus();
+					textEditor.selectAll(); 
+					_isEditing=true;
+					dispatchEvent(new GridItemEditorEvent(GridItemEditorEvent.GRID_ITEM_EDITOR_SESSION_START,true,false,itemIndex,editingCol));
+				} else {
+					dispatchEvent(new IndexChangeEvent("rangeError",true,false,editingCol));
+				}
+			}
+			
+			protected function itemrenderer1_creationCompleteHandler(event:FlexEvent):void {
+				textEditor = new TextInput;
+				textEditor.name = "textEditor";
+				textEditor.setStyle("paddingTop",1);
+				textEditor.setStyle("paddingBottom",1);
+				textEditor.setStyle("paddingLeft",1);
+				textEditor.setStyle("paddingRight",1);
+				textEditor.setStyle("contentBackgroundAlpha",1);
+				textEditor.addEventListener(FocusEvent.FOCUS_OUT,editor_focusOut);
+				
+				if (itemIndex%2==0) {
+					var bg:Rect = new Rect;
+					bg.percentHeight = bg.percentWidth = 100;
+					bg.fill = new SolidColor(0xFFFFFF,.5);
+					addElementAt(bg,0);
+				}
+			}
+			
+			protected function editor_focusOut(event:FocusEvent):void {
+				dispatchEvent(new Event("saveSesion",true,false));
+			}
+		]]>
+	</fx:Script>
+	<s:Rect width="100%" height="100%" id="bloqueado" visible="false"><s:fill><s:SolidColor color="0xcccccc"/></s:fill></s:Rect>
+	<s:Rect width="100%" height="100%" id="retirado" visible="false"><s:fill><s:SolidColor color="0xcd0606"/></s:fill></s:Rect>
+	<s:HGroup width="100%" id="hg" verticalAlign="middle" gap="0">
+		<s:Label id="numero" width="45" maxDisplayedLines="1" paddingBottom="1" paddingLeft="3"
+				 paddingRight="1" paddingTop="3" text="00"/>
+		<s:Line width="0" height="100%"><s:stroke><s:SolidColorStroke color="0" alpha=".4"/></s:stroke></s:Line>
+		<s:Label id="nombre" text="EJEMPLAR" paddingBottom="1" paddingLeft="1" paddingRight="1" paddingTop="3" maxDisplayedLines="1"/>
+	</s:HGroup>
+	<s:SkinnableContainer id="hcasillas" right="0" height="100%">
+		<s:layout>
+			<s:HorizontalLayout gap="0" verticalAlign="middle"/>
+		</s:layout>
+	</s:SkinnableContainer>
+	<s:Line width="100%" height="0" bottom="0"><s:stroke><s:SolidColorStroke color="0" alpha=".4"/></s:stroke></s:Line>
+</s:ItemRenderer>

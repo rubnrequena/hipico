@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+					  xmlns:s="library://ns.adobe.com/flex/spark" 
+					  xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" fontFamily="Verdana"
+					  backgroundColor="0" backgroundAlpha=".6">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.core.IVisualElementContainer;
+			
+			static private var sch:ShortCutHelp;
+			static public function popUp(padre:IVisualElementContainer):void {
+				sch = new ShortCutHelp;
+				padre.addElement(sch);
+			}
+			static public function popOff ():void {
+				(sch.parent as IVisualElementContainer).removeElement(sch);
+				sch=null;
+			}
+			static public function get isPopUp():Boolean {
+				return sch?true:false;
+			}
+		]]>
+	</fx:Script>
+	<s:SkinnableContainer width="600" height="214" backgroundColor="0xFFFFFF" fontSize="20"
+						  fontWeight="normal" horizontalCenter="0" verticalCenter="0">
+		<s:layout>
+			<s:VerticalLayout paddingBottom="10" paddingLeft="10" paddingRight="10" paddingTop="10"/>
+		</s:layout>
+		<s:Label width="100%" color="#666666" fontSize="16" fontStyle="italic"
+				 text="Presione F1 nuevamente para cerrar esta ventana" textAlign="center"/>
+		<s:HGroup>
+			<s:Label text="ENTER:" width="120"/>
+			<s:Label text="Abre/Cierrra todas las bancas."/>
+		</s:HGroup>
+		<s:HGroup>
+			<s:Label text="ESCAPE:" width="120"/>
+			<s:Label text="Panel para cargar carrera."/>
+		</s:HGroup>
+		<s:HGroup>
+			<s:Label text="P:" width="120"/>
+			<s:Label text="Panel de premiación."/>
+		</s:HGroup>
+		<s:HGroup>
+			<s:Label text="B:" width="120"/>
+			<s:Label text="Panel de balance."/>
+		</s:HGroup>
+		<s:HGroup>
+			<s:Label text="T:" width="120"/>
+			<s:Label text="Activa/Desactiva busqueda de tablas."/>
+		</s:HGroup>
+		<s:HGroup>
+			<s:Label text="CTRL + T:" width="120"/>
+			<s:Label text="Panel de Tablas."/>
+		</s:HGroup>
+		<s:HGroup>
+			<s:Label text="A:" width="120"/>
+			<s:Label text="Panel de administrador de banca."/>
+		</s:HGroup>
+	</s:SkinnableContainer>
+</s:SkinnableContainer>

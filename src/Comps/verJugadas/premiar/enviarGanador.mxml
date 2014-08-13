@@ -1,0 +1,282 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+         xmlns:s="library://ns.adobe.com/flex/spark"
+         xmlns:mx="library://ns.adobe.com/flex/mx"
+         width="100%" height="100%" currentState="State1"
+         creationComplete="titlewindow1_creationCompleteHandler(event)">
+    <fx:Script source="enviarGanador_ganador.as"/>
+    <fx:Script source="enviarGanador_tabla.as"/>
+    <fx:Script source="enviarGanador_remate.as"/>
+    <fx:Script>
+		<![CDATA[
+        import UI.VerJugadas.comps.ganador.DividendoPopUp;
+
+        import appkit.responders.NResponder;
+
+        import libVOs.infoCarrera;
+
+        import mx.collections.ArrayCollection;
+        import mx.events.CloseEvent;
+        import mx.events.FlexEvent;
+
+        [Bindable]
+        public var ejemplares:ArrayCollection;
+        public var carrera:infoCarrera;
+        protected var empates:int = 0;
+
+        protected function titlewindow1_creationCompleteHandler(event:FlexEvent):void {
+            var gn:itemGanador;
+            for (var i:int = 0; i < Global.banca.bancas.numBancas; i++) {
+                gn = new itemGanador;
+                bancas.addElement(gn);
+                if (i % 2 == 0) {
+                    gn.setStyle("backgroundColor", "#ffffff");
+                    gn.setStyle("backgroundAlpha", 0.5);
+                }
+                gn.reiniciarGanadorHandler.add(reiniciarCarreraHandler);
+                gn.lblBanca.label = Global.banca.bancas.bancas[i].Nombre;
+                gn.banca = Global.banca.bancas.bancas[i].ID;
+            }
+            var t:int = getTimer();
+            iniciarGanador();
+            iniciarTabla();
+            iniciarRemate();
+            if (empates > 0) {
+                chkEmpate.selected = true;
+                chkEmpate_changeHandler();
+            }
+
+
+            stage.addEventListener(KeyboardEvent.KEY_UP, stage_keyUp);
+            closeArea.addEventListener(MouseEvent.CLICK, closeArea_click);
+
+            dividendoButton.enabled = Global.extOptions.dividendo;
+            if (Global.extOptions.dividendo) {
+                NResponder.addNative(dividendoButton, MouseEvent.CLICK, dividendoButton_click);
+            }
+        }
+
+        protected function dividendoButton_click(e:MouseEvent):void {
+            var divPop:DividendoPopUp = new DividendoPopUp(chkEmpate.selected);
+            divPop.x = 120;
+            divPop.y = 0;
+            NResponder.addNative(divPop, DividendoPopUp.DIVIDENDO, divPop_onDividendo, 1);
+			
+            viewArea.addElement(divPop);
+        }
+
+        protected function divPop_onDividendo(...dividendos):void {
+            var bnc:itemGanador;
+            for (var i:int = 0; i < bancas.numElements; i++) {
+                bnc = bancas.getElementAt(i) as itemGanador;
+                if (bnc.lblBanca.selected) {
+                    if (chkEmpate.selected) {
+                        bnc.txtDiv.text = Global.banca.dividendos.dividendo(bnc.banca, carrera.Hipodromo, dividendos[0], true).toString();
+                        bnc.txtDiv0.text = Global.banca.dividendos.dividendo(bnc.banca, carrera.Hipodromo, dividendos[1], true).toString();
+                    } else {
+                        bnc.txtDiv.text = Global.banca.dividendos.dividendo(bnc.banca, carrera.Hipodromo, dividendos[0], false).toString();
+                    }
+                }
+            }
+        }
+
+        private function reiniciarCarreraHandler(banca:int, tipo:int):void {
+            if (tipo == 0) {
+                Global.ganador.ganadores.reiniciar(carrera.toDB, [banca]);
+                hayGanador = false;
+            } else if (tipo == 1) {
+                Global.tablas.ganadores.reiniciar(carrera.toDB, [banca]);
+                hayGanadorTabla = false;
+            } else {
+                Global.remate.ganadores.reiniciar(carrera.toDB, [banca]);
+                hayGanadorRemate = false;
+            }
+        }
+
+        protected function chkEmpate_changeHandler():void {
+            this.currentState = chkEmpate.selected ? "empate" : "State1";
+            var bnc:itemGanador;
+            for (var i:int = 0; i < bancas.numElements; i++) {
+                bnc = bancas.getElementAt(i) as itemGanador;
+                bnc.currentState = this.currentState;
+            }
+        }
+
+        protected function ganadorLabel(item:Object):String {
+            return item.Numero ? item.Numero + " | " + item.Nombre : item.Nombre;
+        }
+
+        protected function chkBancas_changeHandler(event:Event):void {
+            var bnc:itemGanador;
+            for (var i:int = 0; i < bancas.numElements; i++) {
+                bnc = bancas.getElementAt(i) as itemGanador;
+                if (bnc.lblBanca.enabled) bnc.lblBanca.selected = chkBancas.selected;
+            }
+        }
+
+        protected function reiniciarOver(event:MouseEvent):void {
+            var i:int = grp_reiniciar.getElementIndex(event.currentTarget as IVisualElement);
+            grp_reiniciar.getElementAt(i + 1).visible = true;
+        }
+
+        protected function reiniciarOut(event:MouseEvent):void {
+            (event.currentTarget as Image).visible = false;
+        }
+
+        protected function btnReiniciarGanador_clickHandler(event:MouseEvent):void {
+            var item:itemGanador;
+            var x:int=0;
+            var b:Array = [];
+            for (var i:int = 0; i < bancas.numElements; i++) {
+                item = bancas.getElementAt(i) as itemGanador;
+                if (item.lblBanca.selected) {
+                    b.push(item.banca);
+                    item.tieneGanador = false;
+                    x++;
+                }
+            }
+            Global.ganador.ganadores.reiniciar(carrera.toDB, b);
+            if (x > 0) hayGanador = false;
+            b = null;
+            item = null;
+        }
+
+        protected function btnReiniciarTablas_clickHandler(event:MouseEvent):void {
+            var item:itemGanador;
+            var x:int=0;
+            var b:Array = [];
+            for (var i:int = 0; i < bancas.numElements; i++) {
+                item = bancas.getElementAt(i) as itemGanador;
+                if (item.lblBanca.selected) {
+                    b.push(item.banca);
+                    item.tieneGanadorTabla = false;
+                    x++;
+                }
+            }
+            Global.tablas.ganadores.reiniciar(carrera.toDB, b);
+            if (x > 0) hayGanadorTabla = false;
+            b = null;
+            item = null;
+        }
+
+        protected function btnReiniciarRemate_clickHandler(event:MouseEvent):void {
+            var item:itemGanador;
+            var x:int=0;
+            var b:Array = [];
+            for (var i:int = 0; i < bancas.numElements; i++) {
+                item = bancas.getElementAt(i) as itemGanador;
+                if (item.lblBanca.selected) {
+                    b.push(item.banca);
+                    item.tieneGanadorRemate = false;
+                    x++;
+                }
+            }
+            Global.remate.ganadores.reiniciar(carrera.toDB, b);
+            if (x > 0) hayGanadorRemate = false;
+        }
+
+        protected function stage_keyUp(event:KeyboardEvent):void {
+            if (event.keyCode == Keyboard.ESCAPE) {
+                stage.removeEventListener(KeyboardEvent.KEY_UP, stage_keyUp);
+                closeArea.removeEventListener(MouseEvent.CLICK, closeArea_click);
+                dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+            }
+        }
+
+        protected function closeArea_click(event:MouseEvent):void {
+            stage.removeEventListener(KeyboardEvent.KEY_UP, stage_keyUp);
+            closeArea.removeEventListener(MouseEvent.CLICK, closeArea_click);
+            dispatchEvent(new CloseEvent(CloseEvent.CLOSE));
+        }
+        ]]>
+	</fx:Script>
+    <fx:Metadata>
+        [Event(name="close", type="mx.events.CloseEvent")]
+    </fx:Metadata>
+    <s:states>
+        <s:State name="State1"/>
+        <s:State name="empate"/>
+    </s:states>
+    <fx:Declarations>
+        <!-- Place non-visual elements (e.g., services, value objects) here -->
+    </fx:Declarations>
+    <s:SkinnableContainer backgroundColor="0x000000" backgroundAlpha=".7" width="100%" height="100%" id="closeArea">
+
+    </s:SkinnableContainer>
+    <s:SkinnableContainer backgroundColor="#F9EAD2" backgroundAlpha="1" right="50" left="50" top="60" bottom="60" id="viewArea">
+        <s:Rect width="100%" height="33">
+            <s:fill><s:SolidColor color="#54795c"/></s:fill>
+        </s:Rect>
+        <mx:HRule x="0" y="31" width="100%" height="2"/>
+        <s:CheckBox id="chkBancas" x="5" y="1" label="Bancas" change="chkBancas_changeHandler(event)"
+                    fontFamily="Verdana" fontSize="24" selected="true"/>
+        <s:Button label="Calcular Dividendos" styleName="verJugadas_top" x="120" y="3" height="25" id="dividendoButton"/>
+        <s:Button id="btnEnviarGanadorTablas" x="268" bottom="10" width="250" height="51" label="Tablas"
+                  click="btnEnviarGanadorTablas_clickHandler(event)" fontSize="20"
+                  icon="images/Tablas.png" styleName="verJugadas_top"/>
+        <s:Button x="10" bottom="10" width="250" height="51" label="Remate" fontSize="20" styleName="verJugadas_top"
+                  icon="images/remateTablas.png" id="btnEnviarGanadorRemate" click="btnEnviarGanadorRemate_clickHandler(event)"/>
+        <s:Button id="btnEnviarGanador" right="133" bottom="10" width="239" height="51" label="Ganador"
+                  click="btnEnviarGanador_clickHandler(event)" fontSize="20"
+                  icon="images/ganadorTaquillas.png" styleName="verJugadas_top"/>
+        <s:Scroller left="0" right="0" top="38" bottom="132"
+                    left.State1="0" right.State1="0" top.State1="38" bottom.State1="122">
+            <s:VGroup id="bancas" gap="0" >
+
+            </s:VGroup>
+        </s:Scroller>
+        <s:Label y="10" right="10" fontFamily="Verdana" fontSize="18" text="Dividendos"/>
+        <s:TextInput id="allDividendos" right="31" bottom="15" width="100" height="40"
+                     enter="btnAllDividendos_clickHandler()" fontFamily="Courier New" fontSize="30"
+                     fontWeight="bold" maxChars="5"
+                     right.empate="31" bottom.empate="35" height.empate="31" fontSize.empate="25"
+                     prompt.empate="#1"/>
+        <s:TextInput id="allDividendos0" includeIn="empate" right="31" bottom="5" width="100" height="31" itemCreationPolicy="immediate"
+                     fontFamily="Courier New" fontSize="25" fontWeight="bold" maxChars="5" prompt="#2"/>
+        <s:Image id="btnAllDividendos" right="0" bottom="19" buttonMode="true"
+                 click="btnAllDividendos_clickHandler()" source="images/accept32.png"
+                 right.empate="0" bottom.empate="19"
+                 source.State1="images/accept32.png"/>
+        <s:CheckBox id="chkEmpate" x="10" bottom="116" label="Empate" x.empate="10" bottom.empate="117"
+                    x.State1="10" bottom.State1="96" change="chkEmpate_changeHandler()"/>
+        <s:DropDownList id="remateEjemplares" left="10" bottom="67" width="250"
+                        dataProvider="{ejemplares}" fontSize="20" labelField="Nombre"
+                        labelFunction="ganadorLabel" prompt="Ganador 1"
+                        left.empate="10" bottom.empate="90"
+                        left.State1="10" bottom.State1="65"/>
+        <s:DropDownList id="remateEjemplares2" includeIn="empate" visible="{chkEmpate.selected}" itemCreationPolicy="immediate"
+                        left="10" bottom="65" width="250" fontSize="20" labelField="Nombre"  prompt="Ganador 2"
+                        labelFunction="ganadorLabel" dataProvider="{ejemplares}"/>
+        <s:DropDownList id="ganadorEjemplares" right="6" bottom="67" width="276"
+                        dataProvider="{ejemplares}" fontSize="20" labelField="Nombre"
+                        labelFunction="ganadorLabel" prompt="Ganador 1"
+                        right.empate="133" bottom.empate="90" width.empate="239"
+                        right.State1="134" bottom.State1="65" width.State1="238"/>
+        <s:DropDownList id="ganadorEjemplares2" includeIn="empate" visible="{chkEmpate.selected}" itemCreationPolicy="immediate"
+                        right="133" bottom="65" width="239" fontSize="20" labelField="Nombre" prompt="Ganador 2"
+                        labelFunction="ganadorLabel" dataProvider="{ejemplares}"/>
+        <s:DropDownList id="tablaEjemplares" left="268" bottom="90" width="250"
+                        dataProvider="{ejemplares}" fontSize="20" labelField="Nombre"
+                        labelFunction="ganadorLabel" prompt="Ganador 1"
+                        left.State1="268" bottom.State1="65"/>
+        <s:DropDownList id="tablaEjemplares2" includeIn="empate" left="268" bottom="65" width="250"
+                        dataProvider="{ejemplares}" fontSize="20" labelField="Nombre" itemCreationPolicy="immediate"
+                        labelFunction="ganadorLabel" prompt="Ganador 2"/>
+
+        <s:Group id="grp_reiniciar" y="0"
+                 right.empate="0"
+                 y.State1="0" right.State1="0">
+            <s:Image id="marcaGanador" name="grefresh" visible="true" right="117" width="32" height="32" rollOver="reiniciarOver(event)" smooth="true" source="images/trofeo.png" verticalCenter="0"/>
+            <s:Image id="grefresh" right="117" width="32" height="32" alpha=".8" rollOut="reiniciarOut(event)" buttonMode="true"
+                     smooth="true" source="images/refresh.png" verticalCenter="0" visible="false" name="0" click="btnReiniciarGanador_clickHandler(event)"/>
+
+            <s:Image id="marcaTabla" name="trefresh" visible="true" right="153" width="32" height="32" rollOver="reiniciarOver(event)" smooth="true" source="images/Tablas.png" verticalCenter="0"/>
+            <s:Image id="trefresh" right="153" width="32" height="32" alpha=".8" rollOut="reiniciarOut(event)" buttonMode="true"
+                     smooth="true" source="images/refresh.png" verticalCenter="0" visible="false" name="1" click="btnReiniciarTablas_clickHandler(event)"/>
+
+            <s:Image right="193" name="rrefresh" width="32" height="32" smooth="true" id="marcaRemate" rollOver="reiniciarOver(event)" source="images/remateTablas.png" verticalCenter="0" visible="true"/>
+            <s:Image id="rrefresh" right="193" width="32" height="32" alpha=".8" rollOut="reiniciarOut(event)" buttonMode="true"
+                     smooth="true" source="images/refresh.png" verticalCenter="0" visible="false" name="2" click="btnReiniciarRemate_clickHandler(event)"/>
+        </s:Group>
+    </s:SkinnableContainer>
+</s:Group>

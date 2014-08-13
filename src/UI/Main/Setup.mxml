@@ -1,0 +1,110 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark"  fontFamily="Verdana"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="100%" height="100%" creationComplete="group1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayList;
+			import mx.controls.Alert;
+			import mx.core.IVisualElementContainer;
+			import mx.events.FlexEvent;
+			import mx.graphics.SolidColor;
+			
+			import org.osflash.signals.Signal;
+			
+			import spark.events.IndexChangeEvent;
+			import spark.primitives.Rect;
+			
+			private var so:SharedObject = SharedObject.getLocal("Hipico");
+			public var onComplete:Signal = new Signal;
+			protected function group1_creationCompleteHandler(event:FlexEvent):void {				
+				btnSiguiente.addEventListener(MouseEvent.CLICK,btnSiguiente_click,false,0,true);
+			}
+			
+			protected function btnSiguiente_click(event:MouseEvent):void {
+				switch(currentState) {
+					case "inicio": {
+						currentState = "basedatos";
+						btnSiguiente.enabled=false;
+						break;
+					}
+					case "basedatos": {
+						(parent as IVisualElementContainer).removeElement(this);
+						onComplete.dispatch(null);
+						break;
+					}
+					default: {
+						currentState = "inicio";
+						break;
+					}
+				}
+			}
+			
+			protected function btnSelectDB_clickHandler(event:MouseEvent):void
+			{
+				var ob:File=new File;
+				ob.browseForDirectory("Seleccione Carpeta");
+				ob.addEventListener(Event.SELECT, saveDB,false,0,true);
+				ob.addEventListener(Event.CANCEL, dbCancel,false,0,true);
+			}
+			protected function dbCancel(e:Event):void {
+				Alert.show("Es obligatorio que elija una base de datos para iniciar el sistema, cierre y vuelva a iniciar para elegir una base de datos");
+			}
+			protected function saveDB(e:Event):void {				
+				var file:File = File(e.currentTarget);
+				if (file.exists) {
+					txtRutaDB.text = file.nativePath;
+					dbcorrecta.visible=true;
+					so.data.carpetaBD=file.nativePath;
+					so.data.setUp=true;
+					so.flush(0);
+					btnSiguiente.enabled=true;
+				} else {
+					
+				}
+			}
+			
+			protected function btnCrearDB_clickHandler(event:MouseEvent):void {
+				var dbf:File = new File("C:/Hipico");
+				dbf.createDirectory();
+				txtRutaDB.text = dbf.nativePath;
+				dbcorrecta.visible=true;
+				so.data.carpetaBD=dbf.nativePath;
+				so.data.setUp=true;
+				so.flush(0);
+				btnSiguiente.enabled=true;
+			}
+			
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="inicio"/>
+		<s:State name="basedatos"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Rect width="100%" height="100%">
+		<s:fill>
+			<s:SolidColor color="0xFFFFFF"/>
+		</s:fill>
+	</s:Rect>
+	<s:Image right="10" top="10" width="215" source="images/logo.jpg"/>
+	<s:Button id="btnSiguiente" right="10" bottom="10" label="Siguiente"
+			  fontSize="36"/>
+	<s:Group includeIn="inicio" width="100%" height="100%">
+		
+		<s:Label x="10" y="77" fontSize="50" text="Bienvenido"/>
+		<s:RichText y="177" left="10" right="233" fontSize="36" text="Este asistente lo guiará a travéz de la instalación del sistema hípico."/>
+	</s:Group>
+	<s:Group includeIn="basedatos" width="100%" height="100%">
+		<s:RichText y="10" left="10" right="247" fontSize="36" text="Seleccionar o crear origen de la base de datos." verticalAlign="top"/>
+		<s:TextInput id="txtRutaDB" y="168" left="10" right="247" fontSize="36" prompt="Ruta a la base de datos..." enabled="false"/>
+		<s:Button x="10" y="221" label="Seleccionar" fontSize="20" id="btnSelectDB" click="btnSelectDB_clickHandler(event)"/>
+		<s:Button x="153" y="221" label="Crear" fontSize="20" id="btnCrearDB" click="btnCrearDB_clickHandler(event)"/>
+		<s:Group y="253" left="10" right="247" height="48" id="dbcorrecta" visible="false">
+			<s:Image source="images/accept.png"/>
+			<s:RichText x="50" y="7" fontSize="36" text="Base de Datos Correcta"/>
+		</s:Group>
+	</s:Group>
+</s:Group>

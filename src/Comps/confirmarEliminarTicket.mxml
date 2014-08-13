@@ -1,0 +1,107 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Panel xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx"
+		 width="418" height="202" creationComplete="panel1_creationCompleteHandler(event)"
+		 fontFamily="Verdana" title="Confirmar Eliminar Ticket">
+	<fx:Declarations>
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import Cliente.CSocket;
+			
+			import mx.events.FlexEvent;
+			
+			import org.osflash.signals.Signal;
+			public var click:Signal = new Signal(Boolean,Object,CSocket);
+
+			private var cuenta:Timer;
+			public var data:*;
+			public var socket:CSocket;
+			
+			protected function noBtn_clickHandler(event:MouseEvent):void {
+				click.dispatch(false,data,socket);
+				dispose();
+			}
+			
+			protected function siBtn_clickHandler(event:MouseEvent):void {
+				click.dispatch(true,data,socket);
+				dispose();
+			}
+			
+			protected function panel1_creationCompleteHandler(event:FlexEvent):void {
+				cuenta = new Timer(1000,300);
+				cuenta.addEventListener(TimerEvent.TIMER, tic);
+				cuenta.addEventListener(TimerEvent.TIMER_COMPLETE,toc);
+				cuenta.start();
+				Global.beep(3);
+				
+				stage.addEventListener(KeyboardEvent.KEY_UP,keyUp_handler,false,0,true);
+				siBtn.setFocus();
+				
+				var _monto:Number=0;  var i:int;
+				
+				var tickets:Array = data.tickets;
+				for (i = 0; i < tickets.length; i++) { _monto+= tickets[i].Monto; }
+				
+				monto.text = _monto.toString();
+				
+				fecha.text = data.carrera.Fecha;
+				hipodromo.text = data.carrera.Hipodromo;
+				carrera.text = data.carrera.Carrera;
+				
+				ticket.text = data.tickets[0].VentaID;
+				taquilla.text = socket.data.taquilla;
+				banca.text = Global.banca.bancas.bancaByID(socket.data.banca).Nombre;
+			}
+			
+			protected function tic(event:TimerEvent):void {
+				this.title = "Confirmar Eliminar Ticket - TIEMPO RESTANTE "+(300-cuenta.currentCount);
+			}
+			
+			protected function toc(event:TimerEvent):void {
+				click.dispatch(false,data,socket);
+				dispose();
+			}
+			
+			protected function keyUp_handler(event:KeyboardEvent):void {
+				if (event.keyCode==Keyboard.ESCAPE) {	noBtn_clickHandler(new MouseEvent(MouseEvent.CLICK)); }
+				if (event.keyCode==Keyboard.ENTER) { 	siBtn_clickHandler(new MouseEvent(MouseEvent.CLICK)); }
+			}
+			protected function dispose():void {
+				cuenta.stop(); cuenta = null;
+				stage.removeEventListener(KeyboardEvent.KEY_UP,keyUp_handler);
+				parent.removeChild(this);
+			}
+		]]>
+	</fx:Script>
+	<s:Form x="10" y="20" width="193" height="92">
+		<s:FormItem height="18" label="Taquilla:">
+			<s:Label id="taquilla"/>
+		</s:FormItem>
+		<s:FormItem height="18" label="Ticket:">
+			<s:Label  id="ticket"/>
+		</s:FormItem>
+		<s:FormItem height="18" label="Monto:">
+			<s:Label id="monto"/>
+		</s:FormItem>
+	</s:Form>
+	<s:Button id="siBtn" y="117" left="0" width="209" height="53" label="Eliminar"
+			  chromeColor="#48B4FF" click="siBtn_clickHandler(event)" fontSize="14"
+			  fontWeight="bold" icon="images/accept.png" skinClass="skins.W8Button"/>
+	<s:Button id="noBtn" y="117" right="0" width="209" height="52" label="No Eliminar"
+			  click="noBtn_clickHandler(event)" fontSize="14" icon="images/delete.png"
+			  skinClass="skins.W8Button"/>
+	<s:Form x="211" y="20" width="195" height="92">
+		<s:FormItem height="18" label="Fecha:">
+			<s:Label id="fecha" fontWeight="bold"/>
+		</s:FormItem>
+		<s:FormItem height="18" label="Hipodromo:">
+			<s:Label id="hipodromo" fontWeight="bold" maxDisplayedLines="2" width="100%"/>
+		</s:FormItem>
+		<s:FormItem height="18" label="Carrera:">
+			<s:Label id="carrera" fontWeight="bold"/>
+		</s:FormItem>
+	</s:Form>
+	<s:Label x="10" y="10" width="396" fontWeight="bold" textAlign="center" id="banca"/>
+</s:Panel>

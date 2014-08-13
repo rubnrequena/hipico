@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:ItemRenderer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+				xmlns:s="library://ns.adobe.com/flex/spark" 
+				xmlns:mx="library://ns.adobe.com/flex/mx" 
+				autoDrawBackground="true" fontSize="16" fontFamily="Verdana">
+	
+	<fx:Script>
+		<![CDATA[
+			override public function set data(value:Object):void {
+				super.data = value;
+				if (value) {
+					desc.text = value.desc;
+					jugado.text = Global.nf.format(value.jugado);
+					premios.text = Global.nf.format(value.premios);
+					balance.text = Global.nf.format(value.jugado-value.premios);
+					
+					if (value.jugado-value.premios>0) {
+						balance.setStyle("color",0x000000);
+					} else {
+						balance.setStyle("color",0xc00000);
+					}
+				}
+			}
+		]]>
+	</fx:Script>
+	<s:HGroup width="100%" gap="0" verticalAlign="middle">
+		<s:Label width="100%" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="5" text="00-00-0000" id="desc"/>
+		<s:Line width="0" height="100%"><s:stroke><s:SolidColorStroke color="0" alpha=".3"/></s:stroke></s:Line>
+		<s:Label text="0.00" width="130" textAlign="right" id="jugado" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="5"/>
+		<s:Line width="0" height="100%"><s:stroke><s:SolidColorStroke color="0" alpha=".3"/></s:stroke></s:Line>
+		<s:Label text="0.00" width="130" textAlign="right" id="premios" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="5"/>
+		<s:Line width="0" height="100%"><s:stroke><s:SolidColorStroke color="0" alpha=".3"/></s:stroke></s:Line>
+		<s:Label text="0.00" width="130" textAlign="right" id="balance" paddingBottom="3" paddingLeft="3" paddingRight="3" paddingTop="5"/>
+	</s:HGroup>
+	<s:Line bottom="0" width="100%" height="0%"><s:stroke><s:SolidColorStroke color="0" alpha=".3"/></s:stroke></s:Line>
+</s:ItemRenderer>

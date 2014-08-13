@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009" 
+		 xmlns:s="library://ns.adobe.com/flex/spark" 
+		 xmlns:mx="library://ns.adobe.com/flex/mx" width="50%" height="50%"
+		 backgroundAlpha="1" backgroundColor="#a9bf71" fontSize="14" fontFamily="Verdana">
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<fx:Script>
+		<![CDATA[
+			import mx.collections.ArrayList;
+			import mx.core.IVisualElementContainer;
+			
+			[Bindable]
+			private var _noticias:ArrayList = new ArrayList;
+			public function push(noticia:String):void {
+				_noticias.addItemAt({n:noticia},0);
+			}
+			
+			protected function button1_clickHandler(event:MouseEvent):void
+			{
+				(parent as IVisualElementContainer).removeElement(this);
+			}
+			
+			[Bindable] public var label:String="";
+		]]>
+	</fx:Script>
+	<s:Label x="0" y="1" text="{label}"/>
+	<s:List left="0" right="0" top="18" bottom="0" dataProvider="{_noticias}" labelField="n">
+		
+	</s:List>
+	<s:Button right="3" top="2" width="55" height="15" label="Cerrar" buttonMode="true"
+			  click="button1_clickHandler(event)" fontSize="10"/>
+</s:SkinnableContainer>

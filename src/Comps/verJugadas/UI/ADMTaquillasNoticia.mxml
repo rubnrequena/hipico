@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:SkinnableContainer xmlns:fx="http://ns.adobe.com/mxml/2009"
+					  xmlns:s="library://ns.adobe.com/flex/spark"
+					  xmlns:mx="library://ns.adobe.com/flex/mx"
+					  width="400" height="100" fontFamily="Verdana" fontSize="30"
+					  add="skinnablecontainer1_addHandler(event)" backgroundColor="#FFFFFF">
+	<fx:Script>
+		<![CDATA[
+			import mx.core.FlexGlobals;
+			import mx.core.IVisualElementContainer;
+			import mx.events.FlexEvent;
+			
+			protected function skinnablecontainer1_addHandler(event:FlexEvent):void {
+				setTimeout(cerrar,2000);
+			}
+			
+			private function cerrar():void {
+				(parent as IVisualElementContainer).removeElement(this);
+			}
+			
+			static public function popUp(state:String,parent:IVisualElementContainer):void {
+				var admtn:ADMTaquillasNoticia = new ADMTaquillasNoticia;
+				admtn.currentState = state;
+				admtn.verticalCenter = admtn.horizontalCenter = 0;
+				parent.addElement(admtn);
+			}
+			
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="abiertas"/>
+		<s:State name="cerradas"/>
+	</s:states>
+	<fx:Declarations>
+		<!-- Place non-visual elements (e.g., services, value objects) here -->
+	</fx:Declarations>
+	<s:Image x="10" y="10" width="79" height="80" smooth="true" source="images/unlock.png"
+			 source.cerradas="images/lock.png"/>
+	<s:Label x="66" y="10" width="323" height="80" fontWeight="bold" text="TAQUILLAS ABIERTAS"
+			 textAlign="center" verticalAlign="middle"
+			 text.cerradas="TAQUILLAS CERRADAS"/>
+</s:SkinnableContainer>

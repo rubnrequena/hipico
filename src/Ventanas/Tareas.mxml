@@ -1,0 +1,250 @@
+<?xml version="1.0" encoding="utf-8"?>
+<vistas:Modal xmlns:fx="http://ns.adobe.com/mxml/2009" 
+			  xmlns:s="library://ns.adobe.com/flex/spark"  width="100%" height="100%"
+			  xmlns:mx="library://ns.adobe.com/flex/mx" creationComplete="skinnablecontainer1_creationCompleteHandler(event)"
+			  color="0xFFFFFF" fontFamily="Verdana" backgroundAlpha=".7" backgroundColor="0x000000"
+			  addedEffect="{onfade}" xmlns:vistas="vistas.*">
+	<fx:Script>
+		<![CDATA[
+			import Clases.webRaceLoader;
+			
+			import flash.events.KeyboardEvent;
+			
+			import libVOs.infoCarrera;
+			
+			import mx.core.IVisualElementContainer;
+			import mx.events.CloseEvent;
+			import mx.events.EffectEvent;
+			import mx.events.FlexEvent;
+
+			private var info:infoCarrera;
+			
+			private var tareas:int = 0;
+			protected function skinnablecontainer1_creationCompleteHandler(event:FlexEvent):void {
+				onfade.addEventListener(EffectEvent.EFFECT_END,primerEnd,false,0,true);
+				
+				_urlVars = new URLVariables;
+				_urlVars.banca = Global.banca.config.webID;
+			}
+			private var lbl:Label=new Label;
+			protected function addLinea(str:String,color:String="#FFFFFF"):void {
+				if (vgroup.numElements>9) {
+					vgroup.removeElementAt(0);
+				}
+				lbl.setStyle("fontWeight","normal");
+				lbl = new Label;
+				lbl.text = "- "+str;
+				lbl.styleName = "lbl";
+				lbl.width = 550;
+				lbl.setStyle("color",color);
+				lbl.setStyle("fontWeight","bold");
+				vgroup.addElement(lbl);
+			}
+			private function tarea_cargarCarreras():void {
+				var raceLoader:webRaceLoader = new webRaceLoader(Global.banca.config.servidorWeb+"/carreras/cargar.php",Global.banca.config.webID,function (e:String):void {
+					addLinea(e,"#ff0000");
+					tareas++;
+				});
+				if (Global.banca.bancas.numBancas>0) {
+					addLinea("Comprobando carreras de hoy...");
+					if (Global.ganador.carreras_padre.leerCarreraFH(info.fecha())) {
+						addLinea("Carreras cargadas, puede continuar.","#70b2ee");
+						tareas++;
+					} else {
+						addLinea("Buscando carreras de hoy: "+info.fecha()+"...");
+						addLinea("Espere...");
+						raceLoader.cargar(info.fecha(),null,raceLoaderComplete);
+					}
+				} else {
+					addLinea("No se encontraron bancas..","#ff0000");
+					tareas++;
+				}
+			}
+			
+			private function tarea_publicarIP():void {
+				addLinea("Publicando IP...");
+				var appXML:XML = NativeApplication.nativeApplication.applicationDescriptor;
+				var ns:Namespace = appXML.namespace();
+				
+				_urlVars.version = appXML.ns::versionNumber;
+				_urlVars.opt = "set"
+					
+				_urlRequest = new URLRequest(Global.banca.config.servidorWeb+"/servidores.php");
+				_urlRequest.data = _urlVars;
+				_urlRequest.method = "get";
+				_urlLoader = new URLLoader;
+				_urlLoader.dataFormat = URLLoaderDataFormat.TEXT;
+				_urlLoader.addEventListener(Event.COMPLETE,comprobarIP_complete,false,0,true);
+				_urlLoader.addEventListener(IOErrorEvent.IO_ERROR,comprobarIP_errorIO,false,0,true);
+				_urlLoader.load(_urlRequest);
+				
+				System.disposeXML(appXML); ns=null;
+			}
+			protected function comprobarIP_errorIO (event:IOErrorEvent):void {
+				_urlLoader.removeEventListener(IOErrorEvent.IO_ERROR,comprobarIP_errorIO);
+				_urlLoader.removeEventListener(Event.COMPLETE,comprobarIP_complete);
+				addLinea("#"+event.errorID+": IP no publicada.","#ff0000");
+				tareas++;
+			}
+			protected function comprobarIP_complete (event:Event):void {
+				_urlLoader.removeEventListener(IOErrorEvent.IO_ERROR,comprobarIP_errorIO);
+				_urlLoader.removeEventListener(Event.COMPLETE,comprobarIP_complete);
+				var ip:String = (event.target as URLLoader).data;
+				addLinea("IP Publicada con exito: "+ip,"#70b2ee");
+				tareas++;
+			}
+			protected function comprobando_tareas(event:TimerEvent):void {
+				if (tareas>3) {
+					addLinea("Bienvenido al Sistema");
+					check_timer.stop();
+					setTimeout(closeTareas,2000)
+				}
+			}
+			
+			private function closeTareas():void {
+				check_timer.removeEventListener(TimerEvent.TIMER, comprobando_tareas);
+				check_timer=null; _urlLoader=null; _urlRequest=null; _urlVars=null; info=null;
+				closeModal(pago);
+			}
+			
+			protected function primerEnd(event:EffectEvent):void {
+				onfade.removeEventListener(EffectEvent.EFFECT_END,primerEnd);
+				
+				var d:Date = new Date;
+				info = new infoCarrera;
+				info.Fecha = d;
+				
+				check_timer = new Timer(1000,0);
+				check_timer.addEventListener(TimerEvent.TIMER, comprobando_tareas);
+				check_timer.start();
+				
+				tarea_comprobarLicencia();
+			}
+			
+			private function raceLoaderComplete(data:Array):void {
+				if (data.length>0) {
+					var i:int;
+					for (i = 0; i < data.length; i++) {
+						addLinea("Carrera encontrada en hipodromo "+data[i].hipodromo);
+						info.Hipodromo = data[i].hipodromo;
+						Global.ganador.carreras_padre.insertar(info.fecha(),info.Hipodromo,data[i].ejemplares);
+						addLinea("Carrera Guardada","#70b2ee");
+						Global.banca.carreras.insertar(info.fecha(),info.Hipodromo,data[i].ejemplares);
+					}
+				} else {
+					addLinea("No se encontraron carreras..","#ff0000");
+				}
+				tareas++;
+			}
+			
+			private var pago:int=-1;
+
+			private var _urlLoader:URLLoader;
+			private var _urlRequest:URLRequest;
+			private var _urlVars:URLVariables;
+
+			private var check_timer:Timer;
+			private function tarea_comprobarPago():void {
+				addLinea("Comprobando pago...");
+				
+				_urlRequest = new URLRequest(Global.banca.config.servidorWeb+"/pago.php");
+				_urlRequest.data = _urlVars;
+				_urlRequest.method = "get";
+				
+				_urlLoader = new URLLoader;
+				_urlLoader.dataFormat = URLLoaderDataFormat.TEXT;
+				_urlLoader.addEventListener(Event.COMPLETE,comprobarPago_complete);
+				_urlLoader.addEventListener(IOErrorEvent.IO_ERROR,comprobarPago_errorIO);
+				_urlLoader.load(_urlRequest);
+			}
+			protected function comprobarPago_complete(event:Event):void {
+				_urlLoader.removeEventListener(IOErrorEvent.IO_ERROR,comprobarPago_errorIO);
+				_urlLoader.removeEventListener(Event.COMPLETE,comprobarPago_complete);
+				tareas++;
+				var data:Object = JSON.parse(event.currentTarget.data);
+				pago = data.pago;
+				addLinea("Pago comprobado.","#70b2ee");
+			}
+			protected function comprobarPago_errorIO(event:IOErrorEvent):void {
+				_urlLoader.removeEventListener(IOErrorEvent.IO_ERROR,comprobarPago_errorIO);
+				_urlLoader.removeEventListener(Event.COMPLETE,comprobarPago_complete);
+				tareas++;
+				addLinea("#"+event.errorID+": Pago no comprobado","#ff0000");
+			}
+			
+			override protected function keyUpHandler(event:KeyboardEvent):void {
+				if (event.keyCode==Keyboard.ESCAPE) {
+					
+				}
+			}
+			
+			private function tarea_comprobarLicencia():void {
+				addLinea("Comprobando licencia en linea...");
+				_urlRequest = new URLRequest(Global.banca.config.servidorWeb+"/licencia.php");
+				_urlRequest.data = _urlVars;
+				_urlRequest.method = "get";
+				
+				_urlLoader = new URLLoader;
+				_urlLoader.dataFormat = URLLoaderDataFormat.TEXT;
+				_urlLoader.addEventListener(Event.COMPLETE,comprobarLicencia_complete);
+				_urlLoader.addEventListener(IOErrorEvent.IO_ERROR,comprobarLicencia_errorIO);
+				_urlLoader.load(_urlRequest);
+			}
+			
+			protected function comprobarLicencia_complete(event:Event):void {
+				_urlLoader.removeEventListener(Event.COMPLETE,comprobarLicencia_complete);
+				_urlLoader.removeEventListener(IOErrorEvent.IO_ERROR,comprobarLicencia_errorIO);
+				tareas++;
+				if (int(_urlLoader.data)>0) {
+					addLinea("Licencia vigente.");
+					continuarTareas();
+				} else {
+					addLinea("Licencia vencida.","#ff0000");
+					addLinea("Comuniquese con el administrador para reactivar su licencia.");
+					addLinea("Tlf: 04149970167");
+					addLinea("Correo: rubnrequena@gmail.com");
+					addLinea("...");
+				}
+			}
+			protected function continuarTareas():void {
+				tarea_publicarIP();
+				tarea_cargarCarreras();
+				tarea_comprobarPago();
+			}
+			protected function comprobarLicencia_errorIO(event:IOErrorEvent):void {
+				_urlLoader.removeEventListener(Event.COMPLETE,comprobarLicencia_complete);
+				_urlLoader.removeEventListener(IOErrorEvent.IO_ERROR,comprobarLicencia_errorIO);
+				tareas++;
+				addLinea("#"+event.errorID+": Licencia no comprobada","#ff0000");
+				addLinea("Iniciando validación local","#ff0000");
+				continuarTareas();
+				dispatchEvent(new Event("validarLicenciaLocal"));
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		<s:Fade id="onfade" alphaFrom="0" alphaTo="1" duration="500"/>
+	</fx:Declarations>
+	<fx:Style>
+		@namespace s "library://ns.adobe.com/flex/spark";
+		@namespace mx "library://ns.adobe.com/flex/mx";
+		.lbl {
+			fontFamily:"Verdana";
+			fontSize:18;
+			paddingLeft:10;
+			paddingRight:10;
+		}
+	</fx:Style>
+	<s:SkinnableContainer backgroundAlpha=".8" backgroundColor="#418f94" width="550" height="300" verticalCenter="0" horizontalCenter="0">
+		<s:Label x="11" y="10" fontSize="20" text="Tareas:"/>
+		<s:VGroup id="vgroup" y="35" left="0" right="0" height="255">
+			
+		</s:VGroup>
+		<s:Rect width="100%" height="100%">
+			<s:stroke>
+				<s:SolidColorStroke color="0xffffff" weight="1"/>
+			</s:stroke>
+		</s:Rect>
+	</s:SkinnableContainer>
+</vistas:Modal>

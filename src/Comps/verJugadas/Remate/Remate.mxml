@@ -1,0 +1,190 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		  xmlns:s="library://ns.adobe.com/flex/spark"
+		  xmlns:mx="library://ns.adobe.com/flex/mx"
+		  width="100%" height="100%"
+		  creationComplete="window1_creationCompleteHandler(event)" xmlns:Remate="Comps.verJugadas.Remate.*">
+	<fx:Script>
+		<![CDATA[			
+			import Clases.Banca.VOBanca;
+			
+			import Comps.selBanca;
+			
+			import Events.SocketDataEvent;
+			
+			import Sockets.HipicoSocketListener;
+			
+			import UI.Noticia;
+			
+			import events.Evento;
+			
+			import libVOs.infoCarrera;
+			
+			import mx.collections.ArrayList;
+			import mx.events.FlexEvent;
+			import mx.managers.PopUpManager;
+			
+			public var carrera:infoCarrera;
+			
+			private var selbanca:selBanca;
+			private var banca:VOBanca;
+			
+			[Bindable] private var _carrera:ArrayList;
+			protected function window1_creationCompleteHandler(event:FlexEvent):void {
+				selbanca = new selBanca;
+				PopUpManager.addPopUp(selbanca,this,true);
+				PopUpManager.centerPopUp(selbanca);
+				
+				selbanca.addEventListener("bancaSeleccionada",selbanca_bancaSeleccionada);
+				listCarrera.addEventListener(MouseEvent.DOUBLE_CLICK,dgCarrera_doubleClickHandler,false,0,true);
+			}		
+			public function pCasa(monto:Number):Number {
+				return monto - (monto * banca.remate_porcentaje / 100);
+			}
+			
+			protected function dgCarrera_doubleClickHandler(event:MouseEvent):void {
+				if (listCarrera.selectedIndex>-1) {
+					_carrera.getItemAt(listCarrera.selectedIndex).Bloqueado = !Boolean(listCarrera.selectedItem.Bloqueado);
+					_carrera.itemUpdated(_carrera.getItemAt(listCarrera.selectedIndex),"Bloqueado");
+					Global.net.remate.bloquearEjemplar(listCarrera.selectedItem,carrera.FHC,banca.ID);
+					Global.remate.carreras.bloquearEjemplar(carrera.FHC,listCarrera.selectedItem.Numero,listCarrera.selectedItem.Bloqueado);
+				}
+			}
+			protected function selbanca_bancaSeleccionada(event:Evento):void {
+				banca = event.data;
+				Global.net.remate.addEventListener("cambioRemate",remateCambio);
+				Global.net.remate.addEventListener("remateLeerCarrera",remateRecibeCarrera);
+				Global.net.remate.addEventListener("cambioAdicional",remateAdicionalCambio);
+				Global.net.remate.addEventListener(HipicoSocketListener.RETIRAR_EJEMPLAR,remateEjemplarRetirado);
+				Global.net.remate.leerCarrera_remota(carrera.FHC,banca.ID);
+				
+				dispatchEvent(new Evento("titleChange","REMATE VISOR - "+banca.Nombre));
+			}
+			private var casillas:int;
+			private var adicionales:Array;
+			protected function remateRecibeCarrera(event:SocketDataEvent):void {
+				if (event.socket.data.banca==banca.ID) {
+					Global.net.remate.removeEventListener("remateLeerCarrera",remateRecibeCarrera);
+					PopUpManager.removePopUp(selbanca);
+					
+					casillas = event.data.casillas;
+					listCarrera.casillas = casillas;
+					
+					listCarrera.setCasillasWidth(60,60);
+					_carrera = new ArrayList(event.data.carrera);
+					
+					adicionales = event.data.adicionales;
+					
+					buildTotales(casillas);
+					
+					actualizarTotales();
+				}
+			}			
+			
+			protected function buildTotales(casillas:int):void {
+				totales.removeAllElements();
+				subtotales.removeAllElements();
+				
+				var lbl:Label;
+				for (var i:int = 0; i < casillas; i++) {
+					lbl = new Label;
+					lbl.text = "0.00";
+					lbl.width = 120;
+					totales.addElement(lbl);
+					
+					lbl = new Label;
+					lbl.text = "0.00";
+					lbl.width = 120;
+					subtotales.addElement(lbl);
+				}
+			}
+			
+			private function actualizarTotales():void {
+				var _totales:Vector.<Number>;
+				var e:Object; var i:int;
+				_totales = new Vector.<Number>(casillas,true);
+				for (i = 0; i < _carrera.length; i++) {
+					e = _carrera.getItemAt(i);
+					if (!Boolean(e.Retirado)) {
+						for (var j:int = 0; j < casillas; j++) {
+							_totales[j] += int(e["Monto"+(j+1)]);
+						}
+					}
+				}
+				var _total:Number = 0; var _ad:int; var a:int;
+				for (i = 0; i < casillas; i++) { 
+					_total += _totales[i];
+					a = Math.floor(pCasa(_totales[i]));
+					if (adicionales[i]) {a += adicionales[i]; _ad += adicionales[i]; }
+					
+					(subtotales.getElementAt(i) as Label).text =  a.toString();						
+					(totales.getElementAt(i) as Label).text =  Math.floor(_totales[i]).toString();
+				}
+				subtotal.text = Math.floor(pCasa(_total)+_ad).toString();
+				total.text = Math.floor(_total).toString();
+				_totales=null; e = null;
+			}
+			
+			protected function remateCambio(event:SocketDataEvent):void {
+				if (event.socket.data.banca==banca.ID && event.data.fhc == carrera.FHC) {
+					//_carrera.getItemAt(event.data.row)[event.data.columnName] = event.data.newValue;
+					_carrera.setItemAt(event.data.ejemplar,event.data.info.row);
+					listCarrera.dataProvider.itemUpdated(_carrera.getItemAt(event.data.info.row));
+					actualizarTotales();
+				}
+			}
+			
+			protected function remateEjemplarRetirado(event:SocketDataEvent):void {
+				if (event.socket.data.banca == banca.ID) {
+					if (carrera.FHC == event.data.fhc) {
+						_carrera.getItemAt(event.data.ejemplar.Numero-1).Retirado = event.data.ejemplar.Retirado;
+						listCarrera.dataProvider.itemUpdated(_carrera.getItemAt(event.data.ejemplar.Numero-1),"Retirado",event.data.ejemplar.Retirado);
+						actualizarTotales();
+					}
+				}
+			}
+			
+			protected function listCarrera_doubleClickHandler(event:MouseEvent):void {
+				if (event.target is EditItemRender) {
+					var b:Boolean = listCarrera.selectedItem.Bloqueado;
+					_carrera.getItemAt(listCarrera.selectedIndex).Bloqueado = !b;
+					listCarrera.dataProvider.itemUpdated(listCarrera.selectedItem,"Retirado",!b);
+					Global.net.remate.bloquearEjemplar(listCarrera.selectedItem,carrera.FHC,banca.ID);
+				}
+			}
+			
+			protected function remateAdicionalCambio(event:SocketDataEvent):void {
+				if (event.socket.data.banca==banca.ID && event.data.fhc == carrera.FHC) {
+					adicionales = event.data.adicionales;
+					actualizarTotales();
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<s:states>
+		<s:State name="State1"/>
+	</s:states>
+	<fx:Declarations>
+	</fx:Declarations>
+	<fx:Metadata>
+		[Event(name="titleChange", type="events.Evento")]
+	</fx:Metadata>
+	<s:Rect width="100%" height="60" bottom="0"><s:fill><s:SolidColor color="#a5ff30"/></s:fill></s:Rect>
+	<Remate:RemateList id="listCarrera" left="0" right="0" top="0" bottom="60" fontSize="18" dataProvider="{_carrera}"
+					   itemRenderer="Comps.verJugadas.Remate.EditItemRender" skinClass="skins.ListSkin"
+					   doubleClickEnabled="true" doubleClick="listCarrera_doubleClickHandler(event)">
+		
+	</Remate:RemateList>
+	<s:VGroup left="3" bottom="5" fontFamily="Verdana" gap="0" fontSize="18">
+		<s:Label bottom="50" text="TOTAL" fontWeight="bold"/>
+		<s:Label id="subtotal" text="0.00"/>
+		<s:Label id="total" text="0.00"/>
+	</s:VGroup>
+	<s:VGroup right="0" bottom="5" fontSize="18">
+		<s:HGroup fontFamily="Verdana" gap="0" verticalAlign="middle" id="subtotales">
+		</s:HGroup>
+		<s:HGroup fontFamily="Verdana" gap="0" verticalAlign="middle" id="totales">
+		</s:HGroup>
+	</s:VGroup>
+</s:Group>

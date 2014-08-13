@@ -1,0 +1,108 @@
+<?xml version="1.0" encoding="utf-8"?>
+<s:Group xmlns:fx="http://ns.adobe.com/mxml/2009"
+		 xmlns:s="library://ns.adobe.com/flex/spark"
+		 xmlns:mx="library://ns.adobe.com/flex/mx" height="25" maxHeight="25" width="135" creationComplete="group1_creationCompleteHandler(event)">
+	<fx:Script>
+		<![CDATA[
+			import Validacion.Vtexto;
+			import Validacion.cValidar;
+			
+			import mx.events.FlexEvent;
+			
+			import org.osflash.signals.Signal;
+			
+			import spark.events.TextOperationEvent;
+			public static const TEXT:String="text";
+			public static const NUMBER:String="number";
+			private var _text:String;
+			private var	_cambio:Boolean=false;
+			public var campo:String;
+			public var type:String="text";
+			public var autoLoad:Boolean;
+			public function get cambio():Boolean {
+				return _cambio;
+			}
+			public function get text():String {
+				return input.text;
+			}
+			public function set text(value:String):void {
+				_text = value;
+				input.text = value;
+			}
+			
+			protected function btnUpdate_clickHandler(event:MouseEvent):void
+			{
+				guardarCambios();
+			}
+			protected function guardarCambios():void {
+				if (type==TEXT) {
+					if (!cValidar.ValidarTexto([input],new Vtexto)) {
+						currentState="error";
+						return;
+					}
+				} else {
+					if (!cValidar.ValidarNumero([input])) {
+						currentState="error";
+						return;
+					}
+				}
+				Global.banca.config.setConfig(campo,input.text);
+				text = input.text;
+				currentState="ok";
+				var t:Timer = new Timer(1000,1);
+				t.addEventListener(TimerEvent.TIMER_COMPLETE,function():void {
+					currentState="normal";
+				});
+				t.start();
+			}
+			protected function input_changeHandler(event:TextOperationEvent):void
+			{
+				if (input.text!=_text) {
+					currentState = "changed"; _cambio=true;
+				} else {
+					currentState = "normal"; _cambio=false;
+				}
+			}
+			
+			protected function btnRollback_clickHandler(event:MouseEvent):void
+			{
+				input.text = _text;
+				input.errorString= "";
+				currentState = "normal";
+			}
+			
+			protected function input_enterHandler(event:FlexEvent):void {
+				guardarCambios();
+			}
+			
+			protected function group1_creationCompleteHandler(event:FlexEvent):void {
+				if (autoLoad) {
+					this.text = Global.banca.config[campo];
+				}
+			}
+			
+		]]>
+	</fx:Script>
+	<fx:Declarations>
+		
+	</fx:Declarations>
+	<s:states>
+		<s:State name="normal"/>
+		<s:State name="ok"/>
+		<s:State name="changed"/>
+		<s:State name="error"/>
+	</s:states>
+	<s:transitions>
+		<s:Transition fromState="*" toState="*">
+			<s:Parallel>
+				<s:Fade target="{btnUpdate}" />
+				<s:Resize target="{input}" />
+			</s:Parallel>
+		</s:Transition>
+	</s:transitions>
+	<s:TextInput id="input" left="0" right="25" right.normal="0" height="25" change="input_changeHandler(event)" enter="input_enterHandler(event)"/>
+	<s:Button skinClass="skins.iconBoton" excludeFrom="normal" y="1" right="0" id="btnUpdate" buttonMode="true"
+			  icon.error="images/refresh24.png" icon.ok="images/okTI.gif" icon.changed="images/warning.png"
+			  click.changed="btnUpdate_clickHandler(event)" click.error="btnRollback_clickHandler(event)"
+			  toolTip.changed="Click para confirmar cambios" toolTip.error="Click para restablecer campo" enabled.ok="false"/>
+</s:Group>
