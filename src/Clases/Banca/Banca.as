@@ -80,7 +80,7 @@ public class Banca extends Modulo
 			sql('CREATE TABLE Bancas (Nombre TEXT PRIMARY KEY, ID INTEGER, RIF TEXT, remate_porcentaje INTEGER, tablas_cantidad INTEGER, tablas_paga REAL, tablas_multiplo REAL, macuare_tope INTEGER)');
 			sql('INSERT INTO Bancas (Nombre,ID,RIF,remate_porcentaje,tablas_cantidad,tablas_paga,tablas_multiplo,macuare_tope) VALUES ("BANCA",1,"J-00000000-0",30,20,260,1,500)');
 			sql('CREATE TABLE "Hipodromos" (Hipodromo TEXT PRIMARY KEY, Ganador REAL)');
-			insertarUnion("Hipodromos",[{Hipodromo:"VALENCIA",Ganador:5},{Hipodromo:"SANTA RITA",Ganador:5},{Hipodromo:"RINCONADA",Ganador:5},{Hipodromo:"RANCHO ALEGRE",Ganador:2}]);
+			insertarUnion("Hipodromos",[{Hipodromo:"VALENCIA",Ganador:5},{Hipodromo:"SANTA RITA",Ganador:5},{Hipodromo:"RINCONADA",Ganador:5},{Hipodromo:"RANCHO ALEGRE",Ganador:5}]);
 			sql('CREATE TABLE "Ejemplares" (Nombres TEXT PRIMARY KEY)');
 			sql('CREATE TABLE "Dividendos" (divID INTEGER PRIMARY KEY AUTOINCREMENT,  bancaID INTEGER, hipodromos TEXT, rangos TEXT, empate REAL DEFAULT 0, tope REAL DEFAULT 0)');
 			sql('CREATE TABLE "Config" (Configid INTEGER PRIMARY KEY AUTOINCREMENT,  Nombre TEXT,  Valor TEXT,  Info TEXT)');

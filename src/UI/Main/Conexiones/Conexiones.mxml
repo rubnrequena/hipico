@@ -73,7 +73,7 @@
 			<s:Rect width="1" height="100%"><s:fill><s:SolidColor color="0" alpha=".3"/></s:fill></s:Rect>
 			<s:Label text="VERSION" width="100"/>
 			<s:Rect width="1" height="100%"><s:fill><s:SolidColor color="0" alpha=".3"/></s:fill></s:Rect>
-			<s:Label text="CONEXION" width="145"/>
+			<s:Label text="CONEXION" width="160"/>
 			<s:Rect width="1" height="100%"><s:fill><s:SolidColor color="0" alpha=".3"/></s:fill></s:Rect>
 		</s:SkinnableContainer>
 		<s:Rect y="31" left="10" right="10" height="1"><s:fill><s:SolidColor color="0" alpha=".3"/></s:fill></s:Rect>

@@ -47,7 +47,8 @@ package as3
 		
 		protected function updateLicencia(event:Event):void {
 			var d:Date = timeAvailableDate;
-			_lbl.text = "Tiempo Restante: "+[d.hours,d.minutes,d.seconds].join(":");
+			var dias:int = Math.floor(timeAvailable/86400000);
+			_lbl.text = "Tiempo Restante: "+dias+" dias, "+[d.hours,d.minutes].join(":");
 		}
 		
 		protected function licenciaExpiro(event:Event):void {

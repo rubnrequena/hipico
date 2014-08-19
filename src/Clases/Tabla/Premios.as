@@ -60,7 +60,7 @@ package Clases.Tabla
 			var tt:int = getTimer();
 			var tts:Vector.<int> = new Vector.<int>;
 			var len:int; var len2:int;
-			var i:int; var j:int; var k:int; var c:int;
+			var i:int; var j:int; var k:int; var c:int; var empate:Number;
 			var o:Object;
 			var _string:String;
 			var _array:Array;
@@ -102,9 +102,9 @@ package Clases.Tabla
 				}
 			}
 			//asignar ejemplares ganadores
-			trace("len",_array.length);
 			_array = [];
 			len2 = ganadores.length;
+			empate = ganadores.length==2?0.5:1;
 			_string = carrera.FHC;
 			for (i=0;i<len2;i++) {
 				o = ganadores[i].toObject;
@@ -138,6 +138,7 @@ package Clases.Tabla
 				for (j=0;j<len2;j++) {
 					o = taq.ventas[j];
 					o.Premio = o.Cantidad*taq.tablaPaga;
+					o.Premio = o.Premio*empate;
 					taquillas[i].premio += o.Premio;
 				}
 			}

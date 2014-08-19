@@ -10,7 +10,6 @@
 		<![CDATA[			
 			import mx.collections.ArrayList;
 			import mx.events.FlexEvent;
-			import mx.utils.StringUtil;
 			
 			protected function colapsablegroup1_creationCompleteHandler(event:FlexEvent):void
 			{
@@ -18,6 +17,7 @@
 				insertarHipodromo.addEventListener(MouseEvent.CLICK,insertarHipodromo_click,false,0,true);
 				nombreHipodromo.addEventListener(FlexEvent.ENTER,nombreHipodromo_enter,false,0,true);
 				
+				list.itemRenderer = new ClassFactory(HipodromoItem);
 				updateDataGrid();
 			}
 			
@@ -31,19 +31,19 @@
 			private function updateDataGrid():void {
 				list.dataProvider = new ArrayList(Global.banca.hipodromos.datos);
 				nombreHipodromo.text = "";
+				ganadorHipodromo.text = "";
 			}
 			
 			protected function insertarHipodromo_click(event:MouseEvent):void {
 				if (nombreHipodromo.text.length>0) {
-					Global.banca.hipodromos.insertar(StringUtil.trim(nombreHipodromo.text));
+					Global.banca.hipodromos.insertar(nombreHipodromo.text,int(ganadorHipodromo.text));
 					updateDataGrid();
 				}
 			}
 			
-			protected function nombreHipodromo_enter(event:FlexEvent):void
-			{
+			protected function nombreHipodromo_enter(event:FlexEvent):void {
 				if (nombreHipodromo.text.length>0) {
-					Global.banca.hipodromos.insertar(StringUtil.trim(nombreHipodromo.text));
+					Global.banca.hipodromos.insertar(nombreHipodromo.text,int(ganadorHipodromo.text));
 					updateDataGrid();
 				}
 			}
@@ -56,14 +56,15 @@
 		</s:fill>
 	</s:Rect>
 	<s:List id="list" x="0" top="38" bottom="78" width="300" contentBackgroundColor="#F9EAD2"
-			fontSize="25" labelField="Hipodromo">
+			fontSize="25" labelField="Hipodromo" >
 		
 	</s:List>
 	<s:Button id="removerHipodromo" x="5" bottom="40" width="290" height="30"
 			  label="Remover Hipodromo" styleName="verJugadas_top"/>
 	<s:Button id="btnAtras" x="5" bottom="5" width="290" height="30"
 			  label="Atras" styleName="verJugadas_top"/>
-	<s:TextInput x="7" y="5" width="200" fontSize="20" prompt="Hipodromo" id="nombreHipodromo"/>
+	<s:TextInput x="3" y="5" width="156" fontSize="20" prompt="Hipodromo" id="nombreHipodromo"/>
+	<s:TextInput x="161" y="5" width="50" fontSize="20" id="ganadorHipodromo"/>
 	<s:Button id="insertarHipodromo" x="215" y="5" width="80" height="30" label="Agregar"
 			  styleName="verJugadas_top"/>
 </s:Group>

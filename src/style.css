@@ -44,4 +44,6 @@ Reporte|ReporteFechaModal {
 .defaultItem {
 	verticalAlign:middle;
 	fontSize:16;
+	paddingLeft:5;
+	paddingRight:5;
 }

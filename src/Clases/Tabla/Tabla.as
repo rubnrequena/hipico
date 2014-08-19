@@ -65,6 +65,7 @@ package Clases.Tabla
 		public function guardarTablas(tablasPadre:Array,tablas:Array):void {
 			insertarUnion(Tablas_Padre.TABLAS_PADRE,tablasPadre);
 			for (var i:int = 0; i < tablas.length; i++) {
+				tablas[i].Nombre = String(tablas[i].Nombre).split("'").join("");
 				if (tablas[i].hasOwnProperty("Cantidad")) {
 					tablas[i].Tablas = tablas[i].Cantidad;
 					delete tablas[i].Cantidad;

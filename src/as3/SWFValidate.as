@@ -19,9 +19,10 @@ package as3
 	[Event(name="licenciaUpdate", type="flash.events.Event")]
 	public class SWFValidate extends EventDispatcher
 	{
-		private var swfTime:Number;
+		private var swfTime:Number=0;
 		private var keyTime:Number=-1;
-		private var timeLeft:Number;
+		private var timeLeft:Number=0;
+		private var keyCreatedTime:Number=0;
 		
 		private var file:File;
 		private var fs:FileStream;
@@ -30,12 +31,12 @@ package as3
 		
 		public static const SEGUNDO:int = 1000; // SEGUNDO
 		public static const MINUTO:int = 60000; // MINUTO
-		public static const HORA:int = 3600000 // HORA
-		
+		public static const HORA:int = 3600000; // HORA
+		public var verbose:Boolean=true;
+			
 		/**
 		 * @param onState <code>function (state:String):void {}</code> 
 		 */		
-		
 		public function SWFValidate() {
 			super();
 			fs = new FileStream;
@@ -45,43 +46,59 @@ package as3
 			
 		}
 		protected function tick(event:TimerEvent):void {
-			updateTime(SEGUNDO);
+			updateTime(MINUTO);
 		}
 		public function validate():void {
+			_trace("validating");
 			file = File.applicationStorageDirectory.resolvePath(appName);
 			if (file.exists) {
 				fs.open(file,FileMode.READ);
 				keyTime = fs.readDouble();
+				keyCreatedTime = fs.readDouble();
 				timeLeft = fs.readDouble();
 				fs.close();
+				fs.open(file,FileMode.UPDATE);
+				_trace("validating","licenciaUpdate");
 				dispatchEvent(new Event("licenciaUpdate"));
 			} else {
+				fs.open(file,FileMode.UPDATE);
 				keyTime=-1;
+				keyCreatedTime=0;
 			}
 			
-			t = new Timer(SEGUNDO);
+			t = new Timer(MINUTO);
 			t.addEventListener(TimerEvent.TIMER,tick);
 			if (keyTime>0) {
-				if (!validateSWF||timeAvailable<0) {
+				if (validSWF&&validKey&&timeAvailable>=0) {
+					t.start();
+				} else {
+					_trace("validating","licenciaExpirada");
 					dispatchEvent(new Event("licenciaExpirada"));
 					t.stop();
-				} else {
-					t.start();
 				}
 			} else {
 				dispatchEvent(new Event("licenciaInvalida"));
 			}
 		}
+		
+		private function _trace(...params):void {
+			if (verbose) trace("SWFValidate:",params);
+		}
 		public function dispose():void {
+			_trace("dispose");
 			t.stop();
 			t.removeEventListener(TimerEvent.TIMER,tick);
 			t=null;
+			fs.close();
 			fs = null;
 			file=null;
 			_timeAvailable=null;
 		}
-		public function get validateSWF():Boolean {
+		public function get validSWF():Boolean {
 			return swfTime==keyTime;
+		}
+		public function get validKey():Boolean {
+			return keyCreatedTime==file.creationDate.time;
 		}
 		public function get timeAvailable():Number {
 			return timeLeft;
@@ -100,37 +117,46 @@ package as3
 			var d:int = int(key.substr(4,2));
 			var t:int = int(key.substr(6,key.length-6));
 			var now:Date = new Date;
+			_trace("creandoLicencia",key,a,m,d,t);
 			if (now.fullYear==a && now.month==m && now.date==d) {
-				keyTime=t*SEGUNDO*60*60;
+				keyTime=t*HORA;
+				//fs.addEventListener(OutputProgressEvent.OUTPUT_PROGRESS,licenciaCreated);
 				update(keyTime);
-				fs.addEventListener(OutputProgressEvent.OUTPUT_PROGRESS,licenciaCreated);
+				_trace("licenciaInsertada");
+				dispatchEvent(new Event("licenciaInsertada"));
+				dispatchEvent(new Event("licenciaUpdate"));
 			} else {
+				_trace("creandoLicencia","licenciaInvalida");
 				dispatchEvent(new Event("licenciaInvalida"));
 			}
 		}
 		
 		protected function licenciaCreated(event:OutputProgressEvent):void {
 			fs.removeEventListener(OutputProgressEvent.OUTPUT_PROGRESS,licenciaCreated);
+			_trace("licenciaInsertada");
 			dispatchEvent(new Event("licenciaInsertada"));
 		}
-		private  function update (time:int):void {
+		private  function update (time:Number):void {
 			timeLeft = time;
-			fs.openAsync(file,FileMode.WRITE);
+			if (keyCreatedTime==0) keyCreatedTime = file.creationDate.time;
+			fs.position=0;
 			fs.writeDouble(swfTime);
+			fs.writeDouble(keyCreatedTime);
 			fs.writeDouble(time);
-			fs.close();
 		}
 		protected function updateTime (time:Number):void {
 			timeLeft = timeLeft-time;
 			dispatchEvent(new Event("licenciaUpdate"));
-			if (validateSWF) {
+			if (validSWF) {
 				if (timeAvailable<=0) {
+					_trace("licenciaUpdating","licenciaExpirada");
 					dispatchEvent(new Event("licenciaExpirada"));
 					t.stop(); t=null;
 				} else {
 					update(timeLeft);
 				}
 			} else {
+				_trace("licenciaUpdating","licenciaInvalida");
 				dispatchEvent(new Event("licenciaInvalida"));
 			}
 		}
